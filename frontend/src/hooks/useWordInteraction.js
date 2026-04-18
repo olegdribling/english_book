@@ -91,7 +91,7 @@ function getWordAtPoint(x, y) {
 
 // Находит предложение, содержащее позицию (node, offset).
 // Границы предложения — символы . ! ?
-// Возвращает строку или null.
+// Возвращает { sentence, rect, rects } или null.
 function getSentenceContaining(node, offset) {
   if (!node || node.nodeType !== Node.TEXT_NODE) return null;
 
@@ -121,12 +121,38 @@ function getSentenceContaining(node, offset) {
 
   while (start > 0 && !/[.!?]/.test(paraText[start - 1])) start--;
   while (end < paraText.length && !/[.!?]/.test(paraText[end])) end++;
-  if (end < paraText.length) end++; // включаем знак препинания
+  if (end < paraText.length) end++;
 
   const sentence = paraText.slice(start, end).trim();
   if (!sentence || sentence.split(/\s+/).length < 2) return null;
 
-  return sentence;
+  // Строим Range для полного предложения чтобы получить точные rects каждой строки
+  const range = document.createRange();
+  const walker2 = document.createTreeWalker(para, NodeFilter.SHOW_TEXT);
+  let pos = 0;
+  let startSet = false;
+  let endSet   = false;
+  while ((cur = walker2.nextNode())) {
+    const len = cur.textContent.length;
+    if (!startSet && pos + len > start) {
+      range.setStart(cur, start - pos);
+      startSet = true;
+    }
+    if (startSet && !endSet && pos + len >= end) {
+      range.setEnd(cur, Math.min(end - pos, len));
+      endSet = true;
+      break;
+    }
+    pos += len;
+  }
+
+  if (!startSet || !endSet) return null;
+
+  return {
+    sentence,
+    rect:  range.getBoundingClientRect(),
+    rects: Array.from(range.getClientRects()),
+  };
 }
 
 // Хук перехватывает нажатия на текст и вызывает onWord(word, rect):
@@ -167,9 +193,9 @@ export function useWordInteraction(containerRef, onWord, translateLine = false) 
     if (!wordResult) return;
 
     if (translateLine) {
-      const sentence = getSentenceContaining(caret.node, caret.offset);
-      if (sentence) {
-        onWord(sentence, wordResult.rect, wordResult.rects);
+      const result = getSentenceContaining(caret.node, caret.offset);
+      if (result) {
+        onWord(result.sentence, result.rect, result.rects);
         return;
       }
     }
@@ -203,10 +229,10 @@ export function useWordInteraction(containerRef, onWord, translateLine = false) 
           offset = 0;
         }
         if (node) {
-          const sentence = getSentenceContaining(node, offset);
+          const result = getSentenceContaining(node, offset);
           sel.removeAllRanges();
-          if (sentence) {
-            onWord(sentence, rect, rects);
+          if (result) {
+            onWord(result.sentence, result.rect, result.rects);
             return;
           }
         }
