@@ -1,0 +1,60 @@
+.header {
+  flex-shrink: 0;
+  background: #1e3a5f;
+  padding: 0 16px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Кнопка назад — иконка + подпись */
+.back {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #ffffff;
+  text-decoration: none;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.back:active {
+  opacity: 1;
+}
+
+/* Подпись рядом со стрелкой назад — того же размера что и заголовок */
+.backLabel {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+/* Заголовок вкладки (Library, Audio и т.д.) */
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+/* Название книги по правому краю хедера */
+.bookTitle {
+  margin-left: auto;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+}
+
+@media (min-width: 768px) {
+  .header { padding: 0 24px; }
+}
+
+@media (min-width: 1024px) {
+  .header { padding: 0 40px; }
+}

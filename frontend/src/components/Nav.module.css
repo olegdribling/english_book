@@ -1,0 +1,90 @@
+/* ── Mobile: bottom bar ── */
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  transition: color 0.15s;
+}
+
+.item:hover {
+  color: var(--text-primary);
+}
+
+.active {
+  color: var(--accent);
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+/* ── iPad (768px+): bottom bar wider ── */
+@media (min-width: 768px) {
+  .nav {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .item {
+    flex: 0 0 120px;
+  }
+}
+
+/* ── Desktop (1024px+): left sidebar ── */
+@media (min-width: 1024px) {
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: auto;
+    width: var(--sidebar-width);
+    height: 100%;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    border-top: none;
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    gap: 4px;
+  }
+
+  .item {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin: 0 8px;
+  }
+
+  .label {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}

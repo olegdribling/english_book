@@ -1,0 +1,164 @@
+.page {
+  padding: 24px 16px;
+  max-width: 640px;
+}
+
+/* Секция настроек */
+.section {
+  margin-bottom: 32px;
+}
+
+/* Заголовок секции */
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* Ряд кнопок выбора */
+.options {
+  display: flex;
+  gap: 12px;
+}
+
+/* Одна кнопка выбора */
+.option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border-radius: 12px;
+  border: 2px solid var(--border, #e5e7eb);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+/* Активная кнопка */
+.optionActive {
+  border-color: var(--accent, #3b82f6);
+}
+
+/* Превью размера шрифта */
+.optionPreview {
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+/* Подпись под превью */
+.optionLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Строка с переключателем: текст слева, тогл справа */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+/* Основной текст переключателя */
+.toggleLabel {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 3px;
+}
+
+/* Подпись под переключателем */
+.toggleDesc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Тогл — iOS-стиль */
+.toggle {
+  flex-shrink: 0;
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--border, #d1d5db);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Включённый тогл */
+.toggleOn {
+  background: var(--accent, #3b82f6);
+}
+
+.toggleOn::after {
+  transform: translateX(20px);
+}
+
+/* Подпись над рядом цветов */
+.colorLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0 0 10px;
+}
+
+.colorLabel + .colorLabel,
+.colorRow + .colorLabel {
+  margin-top: 16px;
+}
+
+/* Ряд цветовых кружочков */
+.colorRow {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+/* Один цветовой кружочек */
+.colorSwatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s;
+  outline: none;
+}
+
+.colorSwatch:hover {
+  transform: scale(1.1);
+}
+
+/* Активный (выбранный) кружочек — утолщённая обводка */
+.colorSwatchActive {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+  .page { padding: 32px 24px; }
+  .options { max-width: 320px; }
+}

@@ -1,0 +1,43 @@
+/* ── Базовый layout: всё прибито к экрану ── */
+.layout {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Зона между хедером и нижней навигацией */
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding-bottom: var(--nav-height);
+}
+
+/* Только этот блок скроллится */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Desktop: сайдбар слева ── */
+@media (min-width: 1024px) {
+  .layout {
+    flex-direction: row;
+  }
+
+  .content {
+    margin-left: var(--sidebar-width);
+    padding-bottom: 0;
+    width: calc(100% - var(--sidebar-width));
+  }
+}
+
+/* Placeholder pages */
+.placeholder {
+  font-size: 15px;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}

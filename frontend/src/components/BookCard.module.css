@@ -1,0 +1,77 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  cursor: pointer;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.18s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+}
+
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.noCover {
+  width: 100%;
+  height: 100%;
+  background: var(--surface);
+}
+
+/* Стикер уровня в правом верхнем углу обложки */
+.levelBadge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.3px;
+  pointer-events: none;
+}
+
+.info {
+  margin-top: 10px;
+  padding: 0 2px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.author {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}

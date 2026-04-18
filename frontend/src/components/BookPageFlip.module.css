@@ -1,0 +1,79 @@
+/* Контейнер с 3D-перспективой для анимации перелистывания */
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  perspective: 1200px;
+  background: var(--bg);
+}
+
+/* Запрещаем выделение текста — перевод только через длинный тап */
+.scene {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Общие стили для обоих типов страниц */
+.staticPage,
+.animPage {
+  position: absolute;
+  inset: 0;
+  padding: 1rem 1.25rem;
+  overflow: hidden;
+  background: var(--bg);
+  line-height: 1.75;
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.staticPage p,
+.animPage p {
+  margin: 0 0 1rem;
+}
+
+.staticPage p:last-child,
+.animPage p:last-child {
+  margin-bottom: 0;
+}
+
+/* Анимируемая страница: скрываем обратную сторону чтобы не было «просвечивания» */
+.animPage {
+  backface-visibility: hidden;
+  will-change: transform;
+  z-index: 2;
+}
+
+/* Вперёд: страница складывается влево (поворот вокруг левого края — корешок) */
+.exitFwd {
+  transform-origin: left center;
+  animation: exitFwd 0.38s ease-in forwards;
+}
+
+/* Назад: страница разворачивается справа налево (как будто возвращается из корешка) */
+.enterBwd {
+  transform-origin: left center;
+  animation: enterBwd 0.38s ease-out forwards;
+}
+
+@keyframes exitFwd {
+  from { transform: rotateY(0deg);   box-shadow:  4px 0 20px rgba(0,0,0,0);   }
+  40%  {                              box-shadow: -8px 0 24px rgba(0,0,0,0.18); }
+  to   { transform: rotateY(-90deg); box-shadow:  0   0  0   rgba(0,0,0,0);   }
+}
+
+@keyframes enterBwd {
+  from { transform: rotateY(-90deg); box-shadow:  0   0  0   rgba(0,0,0,0);   }
+  60%  {                              box-shadow: -8px 0 24px rgba(0,0,0,0.18); }
+  to   { transform: rotateY(0deg);   box-shadow:  4px 0 20px rgba(0,0,0,0);   }
+}
+
+/* Fade: новая страница плавно появляется поверх старой */
+.fadeIn {
+  animation: fadeIn 0.22s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

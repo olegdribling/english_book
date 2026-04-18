@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: english-book
+    runtime: node
+    buildCommand: npm install && npm --prefix frontend install --include=dev && npm --prefix frontend run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DEEPL_API_KEY
+        sync: false
