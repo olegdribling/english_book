@@ -10,23 +10,27 @@ const TABS = [
   { id: 'settings',   label: 'Settings',   Icon: Settings,   to: '/settings'   },
 ];
 
-// Ключ для хранения последнего адреса в разделе Library (читалка, оглавление, список)
+// Ключ для хранения последнего места чтения
 const LAST_LIBRARY_KEY = 'lastLibraryPath';
 
-// Страницы НЕ относящиеся к Library — при переходе на них сохраняем текущий путь
 const NON_LIBRARY = ['/audio', '/dictionary', '/settings'];
 
 export default function Nav({ active }) {
   const { pathname, search } = useLocation();
 
-  // Если текущая страница относится к Library — обновляем сохранённый путь (с query-параметрами)
   const isLibraryPath = !NON_LIBRARY.some(p => pathname.startsWith(p));
+  const isBookPage    = pathname.startsWith('/book/');
+
+  // Сохраняем место чтения когда находимся в разделе Library
   if (isLibraryPath) {
     sessionStorage.setItem(LAST_LIBRARY_KEY, pathname + search);
   }
 
-  // Для вкладки Library — возвращаем на последнюю страницу чтения
-  const libraryTo = sessionStorage.getItem(LAST_LIBRARY_KEY) || '/';
+  // Если читаем книгу — Library ведёт на главную.
+  // Если в другом разделе — возвращаемся к последнему месту чтения.
+  const libraryTo = isBookPage
+    ? '/'
+    : (sessionStorage.getItem(LAST_LIBRARY_KEY) || '/');
 
   return (
     <nav className={styles.nav}>

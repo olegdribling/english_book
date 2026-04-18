@@ -6,33 +6,26 @@
   flex-direction: column;
 }
 
-/* Зона между хедером и нижней навигацией */
-.content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  padding-bottom: var(--nav-height);
-}
-
 /* Только этот блок скроллится */
 .main {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--nav-height);
 }
 
 /* ── Desktop: сайдбар слева ── */
 @media (min-width: 1024px) {
   .layout {
-    flex-direction: row;
+    flex-direction: column;
   }
 
-  .content {
+  .main {
     margin-left: var(--sidebar-width);
     padding-bottom: 0;
     width: calc(100% - var(--sidebar-width));
   }
+
 }
 
 /* Placeholder pages */

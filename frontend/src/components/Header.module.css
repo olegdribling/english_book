@@ -56,5 +56,9 @@
 }
 
 @media (min-width: 1024px) {
-  .header { padding: 0 40px; }
+  .header {
+    padding: 0 40px;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+  }
 }

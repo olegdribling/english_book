@@ -36,19 +36,17 @@ export default function App() {
   return (
     <div className="layout">
       <Nav active={activeTab} routes={TAB_ROUTES} />
-      <div className="content">
-        <Header activeTab={activeTab} />
-        <main className="main">
-          <Routes>
-            <Route path="/"                                    element={<Library />} />
-            <Route path="/book/:author/:title"                 element={<BookToc />} />
-            <Route path="/book/:author/:title/chapter/:index"  element={<Reader />} />
-            <Route path="/audio"                               element={<Audio />} />
-            <Route path="/dictionary"                          element={<Dictionary />} />
-            <Route path="/settings"                            element={<Settings />} />
-          </Routes>
-        </main>
-      </div>
+      <Header activeTab={activeTab} />
+      <main className="main">
+        <Routes>
+          <Route path="/"                                    element={<Library />} />
+          <Route path="/book/:author/:title"                 element={<BookToc />} />
+          <Route path="/book/:author/:title/chapter/:index"  element={<Reader />} />
+          <Route path="/audio"                               element={<Audio />} />
+          <Route path="/dictionary"                          element={<Dictionary />} />
+          <Route path="/settings"                            element={<Settings />} />
+        </Routes>
+      </main>
     </div>
   );
 }

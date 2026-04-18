@@ -14,9 +14,10 @@ export default function BookToc() {
     fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/toc?level=${level}`)
       .then(r => r.json())
       .then(data => {
-        // Если у книги нет оглавления — на страницу библиотеки
         if (data.noToc) {
           navigate('/', { replace: true });
+        } else if (data.error || !data.chapters) {
+          setError('Could not load table of contents');
         } else {
           setToc(data);
         }

@@ -111,9 +111,9 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Курсор-указатель только на устройствах с мышью */
+/* На мобайле курсор по умолчанию, на десктопе — текстовый для выделения */
 @media (pointer: fine) {
-  .pagedText { cursor: pointer; }
+  .pagedText { cursor: text; }
 }
 
 /* Индикатор текущей страницы внизу */

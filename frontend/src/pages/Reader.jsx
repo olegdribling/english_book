@@ -132,7 +132,7 @@ function ChapterContent({ chapter, author, title, idx, level }) {
     return (
       <>
         <div className={styles.pagedView}>
-          <p className={styles.pagedLabel}>{chapter.label} · {chapter.title}</p>
+          {showPageNumbers && <p className={styles.pagedLabel}>{chapter.label} · {chapter.title}</p>}
           <div className={styles.pagedText} ref={containerRef} onPointerUp={handlePageClick}>
             {pages
               ? <BookPageFlip

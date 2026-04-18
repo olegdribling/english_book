@@ -13,11 +13,13 @@ const TAB_TITLES = {
 // Определяет кнопку "назад" и заголовок книги в зависимости от текущей страницы:
 // - читалка (/book/.../chapter/N) → "< Contents" + название книги по центру
 // - оглавление (/book/...)        → "< Library"  + название книги по центру
-function getBackInfo(pathname) {
+function getBackInfo(pathname, level) {
+  const lvlQ = level ? `?level=${level}` : '';
+
   const chapterMatch = pathname.match(/^\/book\/[^/]+\/([^/]+)\/chapter\/\d+$/);
   if (chapterMatch) {
     const bookTitle = decodeURIComponent(chapterMatch[1]);
-    const tocPath   = pathname.replace(/\/chapter\/\d+$/, '');
+    const tocPath   = pathname.replace(/\/chapter\/\d+$/, '') + lvlQ;
     return { label: 'Contents', to: tocPath, bookTitle };
   }
 
@@ -31,9 +33,10 @@ function getBackInfo(pathname) {
 }
 
 export default function Header({ activeTab }) {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const level = new URLSearchParams(search).get('level');
 
-  const back  = getBackInfo(pathname);
+  const back  = getBackInfo(pathname, level);
   const title = TAB_TITLES[activeTab] ?? 'Library';
 
   return (
