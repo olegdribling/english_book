@@ -14,12 +14,9 @@ export default function BookToc() {
     fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/toc?level=${level}`)
       .then(r => r.json())
       .then(data => {
-        // Если у книги нет оглавления — сразу открываем текст как одну главу
+        // Если у книги нет оглавления — на страницу библиотеки
         if (data.noToc) {
-          navigate(
-            `/book/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/0?level=${level}`,
-            { replace: true }
-          );
+          navigate('/', { replace: true });
         } else {
           setToc(data);
         }
