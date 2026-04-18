@@ -23,7 +23,7 @@
   border-radius: 8px;
   overflow: hidden;
   background: var(--surface);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 .cover img {
