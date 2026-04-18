@@ -26,8 +26,8 @@ function ChapterContent({ chapter, author, title, idx, level }) {
   const navigate                   = useNavigate();
   const textRef                    = useRef(null);
 
-  const handleWord = useCallback((word, rect) => {
-    setPopup({ word, rect });
+  const handleWord = useCallback((word, rect, rects) => {
+    setPopup({ word, rect, rects });
   }, []);
 
   // Ключ для сохранения позиции скролла — уникальный для каждой главы
@@ -155,6 +155,7 @@ function ChapterContent({ chapter, author, title, idx, level }) {
           <TranslationPopup
             word={popup.word}
             rect={popup.rect}
+            rects={popup.rects}
             onClose={() => setPopup(null)}
           />
         )}
@@ -189,6 +190,7 @@ function ChapterContent({ chapter, author, title, idx, level }) {
         <TranslationPopup
           word={popup.word}
           rect={popup.rect}
+          rects={popup.rects}
           onClose={() => setPopup(null)}
         />
       )}

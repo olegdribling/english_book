@@ -48,7 +48,11 @@ function expandToWord(node, offset) {
   const word = cleanWord(range.toString());
   if (!word || !WORD_RE.test(word)) return null;
 
-  return { word, rect: range.getBoundingClientRect() };
+  return {
+    word,
+    rect:  range.getBoundingClientRect(),
+    rects: Array.from(range.getClientRects()),
+  };
 }
 
 // Возвращает { node, offset } позиции курсора по экранным координатам
@@ -165,12 +169,12 @@ export function useWordInteraction(containerRef, onWord, translateLine = false) 
     if (translateLine) {
       const sentence = getSentenceContaining(caret.node, caret.offset);
       if (sentence) {
-        onWord(sentence, wordResult.rect);
+        onWord(sentence, wordResult.rect, wordResult.rects);
         return;
       }
     }
 
-    onWord(wordResult.word, wordResult.rect);
+    onWord(wordResult.word, wordResult.rect, wordResult.rects);
   }, [onWord, translateLine]);
 
   // Десктоп: пользователь выделил слово мышью — перехватываем в mouseup.
@@ -186,12 +190,13 @@ export function useWordInteraction(containerRef, onWord, translateLine = false) 
       const selectedText = sel.toString().trim();
       if (!selectedText) return;
 
-      const rect = sel.getRangeAt(0).getBoundingClientRect();
+      const selRange = sel.getRangeAt(0);
+      const rect     = selRange.getBoundingClientRect();
+      const rects    = Array.from(selRange.getClientRects());
 
       if (translateLine) {
-        const range = sel.getRangeAt(0);
-        let node   = range.startContainer;
-        let offset = range.startOffset;
+        let node   = selRange.startContainer;
+        let offset = selRange.startOffset;
         if (node.nodeType === Node.ELEMENT_NODE) {
           const tw = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
           node   = tw.nextNode();
@@ -201,7 +206,7 @@ export function useWordInteraction(containerRef, onWord, translateLine = false) 
           const sentence = getSentenceContaining(node, offset);
           sel.removeAllRanges();
           if (sentence) {
-            onWord(sentence, rect);
+            onWord(sentence, rect, rects);
             return;
           }
         }
@@ -211,7 +216,7 @@ export function useWordInteraction(containerRef, onWord, translateLine = false) 
       if (!word || !WORD_RE.test(word)) return;
 
       sel.removeAllRanges();
-      onWord(word, rect);
+      onWord(word, rect, rects);
     }, 0);
   }, [onWord, translateLine]);
 
