@@ -50,7 +50,12 @@ english_book/
     │
     ├── public/
     │   ├── favicon.svg              — иконка вкладки браузера
-    │   └── icons.svg                — SVG-спрайт иконок навигации
+    │   ├── icons.svg                — SVG-спрайт иконок навигации
+    │   ├── icon.svg                 — иконка приложения (книга) для PWA
+    │   ├── icon-192.png             — иконка PWA 192×192 (Android)
+    │   ├── icon-512.png             — иконка PWA 512×512 (Android)
+    │   ├── apple-touch-icon.png     — иконка для iOS (добавить на рабочий стол)
+    │   └── manifest.json            — манифест PWA: название, цвета, иконки, режим standalone
     │
     └── src/
         │
