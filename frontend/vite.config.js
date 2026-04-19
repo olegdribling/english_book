@@ -10,8 +10,9 @@ export default defineConfig({
     strictPort: true,
     historyApiFallback: true,
     proxy: {
-      '/api':    'http://localhost:3001',
-      '/covers': 'http://localhost:3001',
+      '/api':              'http://localhost:3001',
+      '/covers':           'http://localhost:3001',
+      '/englishpod-files': 'http://localhost:3001',
     },
   },
 })

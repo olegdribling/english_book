@@ -16,16 +16,30 @@ english_book/
 ├── render.yaml                      — конфиг Render (игнорируется — сервис создан вручную)
 ├── package.json                     — зависимости бэкенда (express, dotenv)
 │
+├── scripts/
+│   └── pdf_to_html.py               — Python-скрипт: конвертирует PDF уроков EnglishPod в HTML
+│                                       (удаляет хедер со 2-й страницы, футер со всех; pip install pymupdf)
+│
 ├── library/                         — все книги по уровням (в git)
 │   ├── A1/                          — книги уровня A1
 │   ├── A2/                          — книги уровня A2
 │   ├── B1/                          — книги уровня B1
 │   ├── B2/                          — книги уровня B2
-│   └── C1/                          — книги уровня C1 (оригинальные тексты)
-│       └── Автор/
-│           └── Название/
-│               ├── книга.txt        — текст книги
-│               └── обложка.jpg      — обложка книги
+│   ├── C1/                          — книги уровня C1 (оригинальные тексты)
+│   │   └── Автор/
+│   │       └── Название/
+│   │           ├── книга.txt        — текст книги
+│   │           └── обложка.jpg      — обложка книги
+│   └── EnglishPod/                  — полный курс EnglishPod (MP3 + PDF уроки)
+│       ├── Elementary/              — уровень Elementary
+│       ├── Intermediatle/           — уровень Intermediate
+│       ├── Upper Intermediatly/     — уровень Upper Intermediate
+│       └── Advanced/                — уровень Advanced
+│           └── NNN-Level-Title/     — папка урока (например: 001-Elementary-Difficult Customer)
+│               ├── *.pdf            — PDF с диалогами урока
+│               ├── *Dialogue*.mp3   — аудио: диалог
+│               ├── *Lesson Review*.mp3 — аудио: обзор урока
+│               └── *.mp3            — аудио: полный урок
 │
 └── frontend/                        — React-приложение (Vite)
     │
@@ -49,7 +63,7 @@ english_book/
         │   └── hero.png             — изображение-заглушка (не используется)
         │
         ├── components/              — переиспользуемые компоненты
-        │   ├── Nav.jsx              — нижняя навигация (4 иконки: Library, Audio, Dictionary, Settings)
+        │   ├── Nav.jsx              — нижняя навигация (4 иконки: Library, EnglishPod, Dictionary, Settings)
         │   ├── Nav.module.css       — стили нижней навигации
         │   ├── Header.jsx           — верхняя шапка с названием текущего раздела
         │   ├── Header.module.css    — стили шапки
@@ -81,7 +95,10 @@ english_book/
             ├── BookToc.module.css   — стили страницы оглавления
             ├── Reader.jsx           — читалка: отображает текст главы, навигация между главами
             ├── Reader.module.css    — стили читалки
-            ├── Audio.jsx            — страница аудио (заглушка)
+            ├── EnglishPod.jsx       — раздел EnglishPod: табы уровней и список уроков
+            ├── EnglishPod.module.css — стили раздела EnglishPod
+            ├── EnglishPodLesson.jsx  — страница урока: PDF iframe + 3 аудиоплеера
+            ├── EnglishPodLesson.module.css — стили страницы урока
             ├── Dictionary.jsx       — страница словаря (заглушка)
             ├── Settings.jsx         — страница настроек: размер шрифта, режим перевода строки, свайп-навигация
             └── Settings.module.css  — стили страницы настроек

@@ -1,43 +1,52 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, Headphones, BookMarked, Settings } from 'lucide-react';
+import { BookOpen, GraduationCap, BookMarked, Settings } from 'lucide-react';
 import styles from './Nav.module.css';
 
 // Вкладки нижней навигации
 const TABS = [
-  { id: 'library',    label: 'Library',    Icon: BookOpen,   to: '/'           },
-  { id: 'audio',      label: 'Audio',      Icon: Headphones, to: '/audio'      },
-  { id: 'dictionary', label: 'Dictionary', Icon: BookMarked, to: '/dictionary' },
-  { id: 'settings',   label: 'Settings',   Icon: Settings,   to: '/settings'   },
+  { id: 'library',     label: 'Library',     Icon: BookOpen,      to: '/'            },
+  { id: 'englishpod',  label: 'EnglishPod',  Icon: GraduationCap, to: '/englishpod'  },
+  { id: 'dictionary',  label: 'Dictionary',  Icon: BookMarked,    to: '/dictionary'  },
+  { id: 'settings',    label: 'Settings',    Icon: Settings,      to: '/settings'    },
 ];
 
-// Ключ для хранения последнего места чтения
-const LAST_LIBRARY_KEY = 'lastLibraryPath';
+// Ключи для хранения последнего места в разделе
+const LAST_LIBRARY_KEY    = 'lastLibraryPath';
+const LAST_ENGLISHPOD_KEY = 'lastEnglishPodPath';
 
-const NON_LIBRARY = ['/audio', '/dictionary', '/settings'];
+const NON_LIBRARY = ['/englishpod', '/dictionary', '/settings'];
 
 export default function Nav({ active }) {
   const { pathname, search } = useLocation();
 
-  const isLibraryPath = !NON_LIBRARY.some(p => pathname.startsWith(p));
-  const isBookPage    = pathname.startsWith('/book/');
+  const isLibraryPath    = !NON_LIBRARY.some(p => pathname.startsWith(p));
+  const isBookPage       = pathname.startsWith('/book/');
+  const isEpLessonPage   = pathname.startsWith('/englishpod/');
 
-  // Сохраняем место чтения когда находимся в разделе Library
+  // Сохраняем место когда находимся в соответствующем разделе
   if (isLibraryPath) {
     sessionStorage.setItem(LAST_LIBRARY_KEY, pathname + search);
   }
+  if (pathname.startsWith('/englishpod')) {
+    sessionStorage.setItem(LAST_ENGLISHPOD_KEY, pathname + search);
+  }
 
-  // Если читаем книгу — Library ведёт на главную.
-  // Если в другом разделе — возвращаемся к последнему месту чтения.
+  // Library: если читаем книгу — на главную, иначе — на последнее место
   const libraryTo = isBookPage
     ? '/'
     : (sessionStorage.getItem(LAST_LIBRARY_KEY) || '/');
+
+  // EnglishPod: если на странице урока — на список (/englishpod), иначе — на последнее место
+  const englishPodTo = isEpLessonPage
+    ? '/englishpod'
+    : (sessionStorage.getItem(LAST_ENGLISHPOD_KEY) || '/englishpod');
 
   return (
     <nav className={styles.nav}>
       {TABS.map(({ id, label, Icon, to }) => (
         <Link
           key={id}
-          to={id === 'library' ? libraryTo : to}
+          to={id === 'library' ? libraryTo : id === 'englishpod' ? englishPodTo : to}
           className={`${styles.item} ${active === id ? styles.active : ''}`}
         >
           <Icon size={24} strokeWidth={1.75} />

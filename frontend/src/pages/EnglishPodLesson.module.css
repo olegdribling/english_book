@@ -1,0 +1,138 @@
+.page {
+  padding: 20px 16px 40px;
+  max-width: 720px;
+}
+
+.heading {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.number {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── HTML-текст (мобиль) ───────────────────────────────── */
+
+/* Отображается только на мобиле и планшете */
+.htmlContent {
+  display: block;
+  margin-bottom: 24px;
+  line-height: 1.7;
+  font-size: 16px;
+  color: var(--text-primary);
+  user-select: text;
+}
+
+/* Стили тегов внутри HTML из PDF */
+.htmlContent p {
+  margin: 0 0 12px;
+}
+
+.htmlContent strong {
+  font-weight: 600;
+}
+
+.htmlContent em {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+/* Метка персонажа в диалоге: A:, B: */
+.htmlContent :global(.speaker) {
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 2px;
+}
+
+/* Разделитель перед секцией словаря */
+.htmlContent :global(.section-break) {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+/* ── Кнопка PDF (мобиль, запасной вариант) ────────────── */
+
+.pdfLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+/* ── PDF iframe (ПК) ──────────────────────────────────── */
+
+/* На мобиле и планшете iframe скрыт */
+.pdfWrap {
+  display: none;
+}
+
+.pdf {
+  display: block;
+  width: 100%;
+  height: 60vh;
+  border: none;
+  background: #fff;
+}
+
+/* PDF iframe скрыт везде — используем только HTML */
+.pdfWrap {
+  display: none;
+}
+
+/* ── Аудиоплееры ─────────────────────────────────────── */
+
+.audioList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trackLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.player {
+  width: 100%;
+  border-radius: 6px;
+}
+
+/* ── Состояния загрузки ──────────────────────────────── */
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - var(--nav-height));
+}
+
+.hint {
+  font-size: 15px;
+  color: var(--text-secondary);
+}

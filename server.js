@@ -10,6 +10,9 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 // Директория с книгами: library/{LEVEL}/{Автор}/{Книга}/
 const LIBRARY_DIR = join(__dirname, 'library');
 
+// Директория EnglishPod: library/EnglishPod/{Level}/{NNN-Level-Title}/
+const ENGLISHPOD_DIR = join(LIBRARY_DIR, 'EnglishPod');
+
 // Все уровни сложности — папки внутри library/
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
 
@@ -21,6 +24,9 @@ const PORT = process.env.PORT || 3001;
 
 // Статика: обложки из library/
 app.use('/covers', express.static(LIBRARY_DIR));
+
+// Статика: MP3 и PDF файлы EnglishPod
+app.use('/englishpod-files', express.static(ENGLISHPOD_DIR));
 
 // В продакшне отдаём собранный фронтенд
 const distDir = join(__dirname, 'frontend', 'dist');
@@ -339,6 +345,64 @@ app.get('/api/word-info', async (req, res) => {
   } catch (err) {
     console.error('Dictionary API error:', err.message);
     res.json({ phonetic: null, audioUrl: null });
+  }
+});
+
+// ── EnglishPod ────────────────────────────────────────────────────────────────
+
+// Парсим имя папки урока: "001-Elementary-Difficult Customer" → { number, title }
+function parseLessonFolder(folder) {
+  const parts = folder.split('-');
+  const number = parts[0];
+  const title  = parts.slice(2).join('-').trim();
+  return { number, title };
+}
+
+// Определяем метку трека по имени файла
+function audioLabel(filename) {
+  if (filename.includes('Dialogue'))     return 'Dialogue';
+  if (filename.includes('Lesson Review')) return 'Lesson Review';
+  return 'Full Lesson';
+}
+
+// GET /api/englishpod — список всех уроков сгруппированных по уровням
+app.get('/api/englishpod', async (_req, res) => {
+  try {
+    const result = {};
+    const levels = await readdir(ENGLISHPOD_DIR);
+    for (const level of levels) {
+      const levelPath = join(ENGLISHPOD_DIR, level);
+      if (!(await stat(levelPath)).isDirectory()) continue;
+      const folders = (await readdir(levelPath)).sort();
+      result[level] = folders
+        .filter(f => !f.startsWith('.'))
+        .map(folder => ({ folder, ...parseLessonFolder(folder) }));
+    }
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to read EnglishPod' });
+  }
+});
+
+// GET /api/englishpod/:level/:folder — PDF и аудио конкретного урока
+app.get('/api/englishpod/:level/:folder', async (req, res) => {
+  try {
+    const { level, folder } = req.params;
+    const lessonPath = join(ENGLISHPOD_DIR, level, folder);
+    const files = await readdir(lessonPath);
+
+    const pdf   = files.find(f => f.toLowerCase().endsWith('.pdf')) || null;
+    // HTML-версия текста (результат конвертации скриптом pdf_to_html.py)
+    const html  = files.find(f => f.toLowerCase().endsWith('.html')) || null;
+    const audio = files
+      .filter(f => f.toLowerCase().endsWith('.mp3'))
+      .map(f => ({ file: f, label: audioLabel(f) }));
+
+    res.json({ pdf, html, audio });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to read lesson' });
   }
 });
 

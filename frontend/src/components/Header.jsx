@@ -5,7 +5,7 @@ import styles from './Header.module.css';
 // Заголовки для вкладок нижней навигации
 const TAB_TITLES = {
   library:    'Library',
-  audio:      'Audio',
+  englishpod: 'EnglishPod',
   dictionary: 'Dictionary',
   settings:   'Settings',
 };
@@ -27,6 +27,15 @@ function getBackInfo(pathname, level) {
   if (tocMatch) {
     const bookTitle = decodeURIComponent(tocMatch[1]);
     return { label: 'Library', to: '/', bookTitle };
+  }
+
+  // Страница урока EnglishPod: /englishpod/:level/:folder
+  const epMatch = pathname.match(/^\/englishpod\/([^/]+)\/(.+)$/);
+  if (epMatch) {
+    const folder  = decodeURIComponent(epMatch[2]);
+    const parts   = folder.split('-');
+    const title   = parts.slice(2).join('-').trim();
+    return { label: 'EnglishPod', to: '/englishpod', bookTitle: title };
   }
 
   return null;

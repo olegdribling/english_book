@@ -91,6 +91,7 @@ function getWordAtPoint(x, y) {
 
 // Находит предложение, содержащее позицию (node, offset).
 // Границы предложения — символы . ! ?
+// Текстовые узлы внутри .speaker (метки персонажей A:, B:) исключаются из поиска и Range.
 // Возвращает { sentence, rect, rects } или null.
 function getSentenceContaining(node, offset) {
   if (!node || node.nodeType !== Node.TEXT_NODE) return null;
@@ -98,52 +99,51 @@ function getSentenceContaining(node, offset) {
   const para = node.parentElement?.closest('p');
   if (!para) return null;
 
-  const paraText = para.textContent;
-
-  // Вычисляем абсолютный offset внутри текста параграфа
-  let charOffset = 0;
+  // Собираем сегменты текста, пропуская узлы внутри .speaker
   const walker = document.createTreeWalker(para, NodeFilter.SHOW_TEXT);
-  let found = false;
+  const segments = []; // { node, start, end } в отфильтрованном тексте
+  let filteredText = '';
+  let charOffset = -1;
   let cur;
+
   while ((cur = walker.nextNode())) {
-    if (cur === node) {
-      charOffset += offset;
-      found = true;
-      break;
+    if (cur.parentElement?.classList.contains('speaker')) continue;
+    const segStart = filteredText.length;
+    filteredText += cur.textContent;
+    segments.push({ node: cur, start: segStart, end: filteredText.length });
+    if (charOffset === -1 && cur === node) {
+      charOffset = segStart + offset;
     }
-    charOffset += cur.textContent.length;
   }
-  if (!found) return null;
+
+  if (charOffset === -1 || !filteredText) return null;
 
   // Ищем границы предложения
   let start = charOffset;
   let end   = charOffset;
 
-  while (start > 0 && !/[.!?]/.test(paraText[start - 1])) start--;
-  while (end < paraText.length && !/[.!?]/.test(paraText[end])) end++;
-  if (end < paraText.length) end++;
+  while (start > 0 && !/[.!?]/.test(filteredText[start - 1])) start--;
+  while (end < filteredText.length && !/[.!?]/.test(filteredText[end])) end++;
+  if (end < filteredText.length) end++;
 
-  const sentence = paraText.slice(start, end).trim();
+  const sentence = filteredText.slice(start, end).trim();
   if (!sentence || sentence.split(/\s+/).length < 2) return null;
 
-  // Строим Range для полного предложения чтобы получить точные rects каждой строки
-  const range = document.createRange();
-  const walker2 = document.createTreeWalker(para, NodeFilter.SHOW_TEXT);
-  let pos = 0;
-  let startSet = false;
-  let endSet   = false;
-  while ((cur = walker2.nextNode())) {
-    const len = cur.textContent.length;
-    if (!startSet && pos + len > start) {
-      range.setStart(cur, start - pos);
+  // Строим Range по сегментам для точного выделения
+  const range    = document.createRange();
+  let startSet   = false;
+  let endSet     = false;
+
+  for (const seg of segments) {
+    if (!startSet && seg.end > start) {
+      range.setStart(seg.node, start - seg.start);
       startSet = true;
     }
-    if (startSet && !endSet && pos + len >= end) {
-      range.setEnd(cur, Math.min(end - pos, len));
+    if (startSet && !endSet && seg.end >= end) {
+      range.setEnd(seg.node, Math.min(end - seg.start, seg.node.textContent.length));
       endSet = true;
       break;
     }
-    pos += len;
   }
 
   if (!startSet || !endSet) return null;

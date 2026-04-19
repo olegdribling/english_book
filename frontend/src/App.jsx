@@ -7,21 +7,22 @@ import Header from './components/Header';
 import Library from './pages/Library';
 import BookToc from './pages/BookToc';
 import Reader from './pages/Reader';
-import Audio from './pages/Audio';
 import Dictionary from './pages/Dictionary';
 import Settings from './pages/Settings';
+import EnglishPod from './pages/EnglishPod';
+import EnglishPodLesson from './pages/EnglishPodLesson';
 import './App.css';
 
 const TAB_ROUTES = {
   library:    '/',
-  audio:      '/audio',
+  englishpod: '/englishpod',
   dictionary: '/dictionary',
   settings:   '/settings',
 };
 
 function useActiveTab() {
   const { pathname } = useLocation();
-  if (pathname.startsWith('/audio'))      return 'audio';
+  if (pathname.startsWith('/englishpod')) return 'englishpod';
   if (pathname.startsWith('/dictionary')) return 'dictionary';
   if (pathname.startsWith('/settings'))   return 'settings';
   return 'library';
@@ -42,7 +43,8 @@ export default function App() {
           <Route path="/"                                    element={<Library />} />
           <Route path="/book/:author/:title"                 element={<BookToc />} />
           <Route path="/book/:author/:title/chapter/:index"  element={<Reader />} />
-          <Route path="/audio"                               element={<Audio />} />
+          <Route path="/englishpod"                          element={<EnglishPod />} />
+          <Route path="/englishpod/:level/:folder"           element={<EnglishPodLesson />} />
           <Route path="/dictionary"                          element={<Dictionary />} />
           <Route path="/settings"                            element={<Settings />} />
         </Routes>
