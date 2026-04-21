@@ -258,9 +258,6 @@ export function useWordInteraction(containerRef, onWord) {
     const el = containerRef.current;
     if (!el) return;
 
-    // touch-action: manipulation отключает зум по двойному тапу на iOS/Android
-    el.style.touchAction = 'manipulation';
-
     el.addEventListener('contextmenu', onContextMenu);
     el.addEventListener('mouseup',     onMouseUp);
     el.addEventListener('touchend',    onContainerTouchEnd);

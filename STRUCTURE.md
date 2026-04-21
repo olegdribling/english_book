@@ -84,6 +84,7 @@ english_book/
         ├── hooks/                        — кастомные React-хуки
         │   ├── useWordInteraction.js     — перехватывает выделение текста (тап/мышь), вызывает onWord()
         │   ├── useFontSize.js            — хранит размер шрифта читалки в localStorage
+        │   ├── useSavedWords.js          — хранит сохранённые слова словаря в localStorage
         │   ├── useSwipeNavSetting.js     — хранит настройку "навигация свайпом" в localStorage
         │   ├── useSwipeNav.js            — вешает touch-слушатели на document для свайп-навигации по главам
         │   ├── usePageNumbers.js         — хранит настройку "показывать нумерацию страниц" в localStorage
@@ -103,7 +104,8 @@ english_book/
             ├── EnglishPod.module.css — стили раздела EnglishPod
             ├── EnglishPodLesson.jsx  — страница урока: PDF iframe + 3 аудиоплеера
             ├── EnglishPodLesson.module.css — стили страницы урока
-            ├── Dictionary.jsx       — страница словаря (заглушка)
+            ├── Dictionary.jsx       — страница словаря: flip-карточки сохранённых слов
+            ├── Dictionary.module.css — стили сетки карточек и CSS flip-анимации
             ├── Settings.jsx         — страница настроек: размер шрифта, режим перевода строки, свайп-навигация
             └── Settings.module.css  — стили страницы настроек
 ```

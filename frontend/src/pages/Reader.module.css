@@ -32,10 +32,12 @@
   color: var(--text-primary);
 }
 
-/* Запрещаем выделение текста — перевод только через длинный тап */
-.text {
-  -webkit-user-select: none;
-  user-select: none;
+/* Запрещаем выделение текста на тач-устройствах — перевод через двойной тап или долгое нажатие */
+@media (pointer: coarse) {
+  .text {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 
 .nav {

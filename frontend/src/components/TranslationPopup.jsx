@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useState, useRef } from 'react';
-import { Volume2, Plus } from 'lucide-react';
+import { Volume2, Plus, Check } from 'lucide-react';
+import { saveWord, isWordSaved } from '../hooks/useSavedWords';
 import styles from './TranslationPopup.module.css';
 
 // Попап с переводом слова — появляется над/под выделенным словом.
@@ -10,7 +11,7 @@ export default function TranslationPopup({ word, rect, rects, onClose }) {
   const [phonetic, setPhonetic]       = useState(null);
   const [audioUrl, setAudioUrl]       = useState(null);
   const [loading, setLoading]         = useState(true);
-
+  const [saved, setSaved]             = useState(() => isWordSaved(word));
   const audioRef = useRef(null);
   const popupRef = useRef(null);
   const arrowRef = useRef(null);
@@ -124,8 +125,21 @@ export default function TranslationPopup({ word, rect, rects, onClose }) {
         {isPhrase ? null : (
           /* Режим слова: [+] слово [🔊] */
           <div className={styles.header}>
-            <button className={styles.iconBtn} onPointerDown={e => e.stopPropagation()}>
-              <Plus size={18} strokeWidth={2} />
+            <button
+              className={styles.iconBtn}
+              onPointerDown={e => {
+                e.stopPropagation();
+                if (saved) return;
+                const t = translation && translation !== '—' ? translation : null;
+                saveWord(word, t);
+                window.dispatchEvent(new Event('savedWordsUpdated'));
+                setSaved(true);
+              }}
+            >
+              {saved
+                ? <Check size={18} strokeWidth={2} />
+                : <Plus size={18} strokeWidth={2} />
+              }
             </button>
 
             <span className={styles.word}>{word}</span>
