@@ -1,5 +1,4 @@
 import { useFontSize, FONT_SIZES } from '../hooks/useFontSize';
-import { useTranslateLine } from '../hooks/useTranslateLine';
 import { useSwipeNavSetting } from '../hooks/useSwipeNavSetting';
 import { usePageNumbers } from '../hooks/usePageNumbers';
 import { useBgColor, BG_COLORS } from '../hooks/useBgColor';
@@ -9,7 +8,6 @@ import styles from './Settings.module.css';
 // Страница настроек приложения
 export default function Settings() {
   const [fontSize, setFontSize]               = useFontSize();
-  const [translateLine, setTranslateLine]     = useTranslateLine();
   const [swipeNav, setSwipeNav]               = useSwipeNavSetting();
   const [showPageNumbers, setShowPageNumbers] = usePageNumbers();
   const [bgColor, setBgColor]                 = useBgColor();
@@ -65,23 +63,6 @@ export default function Settings() {
               aria-label={label}
             />
           ))}
-        </div>
-      </div>
-
-      {/* Секция: перевод строки целиком */}
-      <div className={styles.section}>
-        <p className={styles.sectionTitle}>Translation</p>
-        <div className={styles.toggleRow}>
-          <div>
-            <p className={styles.toggleLabel}>Translate full sentence</p>
-            <p className={styles.toggleDesc}>Translate the sentence instead of a single word</p>
-          </div>
-          <button
-            className={`${styles.toggle} ${translateLine ? styles.toggleOn : ''}`}
-            onClick={() => setTranslateLine(!translateLine)}
-            role="switch"
-            aria-checked={translateLine}
-          />
         </div>
       </div>
 

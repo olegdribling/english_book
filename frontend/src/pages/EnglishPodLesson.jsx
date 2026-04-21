@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useWordInteraction } from '../hooks/useWordInteraction';
-import { useTranslateLine } from '../hooks/useTranslateLine';
 import { useFontSize } from '../hooks/useFontSize';
 import TranslationPopup from '../components/TranslationPopup';
 import styles from './EnglishPodLesson.module.css';
@@ -14,7 +13,6 @@ const TRACK_ORDER = ['Dialogue', 'Full Lesson', 'Lesson Review'];
 // точно так же как ChapterContent в Reader.jsx.
 function LessonText({ htmlContent }) {
   const [popup, setPopup]  = useState(null);
-  const [translateLine]    = useTranslateLine();
   const [fontSize]         = useFontSize();
   const textRef            = useRef(null);
 
@@ -22,7 +20,7 @@ function LessonText({ htmlContent }) {
     setPopup({ word, rect, rects });
   }, []);
 
-  useWordInteraction(textRef, onWord, translateLine);
+  useWordInteraction(textRef, onWord);
 
   return (
     <>
@@ -44,12 +42,30 @@ function LessonText({ htmlContent }) {
   );
 }
 
+// Ключ в localStorage для хранения посещённых уроков
+const VISITED_KEY = 'englishpodVisited';
+
+export function markVisited(level, folder) {
+  const raw     = localStorage.getItem(VISITED_KEY);
+  const visited = raw ? JSON.parse(raw) : {};
+  visited[`${level}__${folder}`] = true;
+  localStorage.setItem(VISITED_KEY, JSON.stringify(visited));
+}
+
+export function getVisited() {
+  const raw = localStorage.getItem(VISITED_KEY);
+  return raw ? JSON.parse(raw) : {};
+}
+
 export default function EnglishPodLesson() {
   const { level, folder } = useParams();
   const [lesson, setLesson]           = useState(null);
   const [htmlContent, setHtmlContent] = useState(null);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(null);
+
+  // Отмечаем урок как посещённый при открытии
+  useEffect(() => { markVisited(level, folder); }, [level, folder]);
 
   useEffect(() => {
     const base = `/englishpod-files/${encodeURIComponent(level)}/${encodeURIComponent(folder)}`;

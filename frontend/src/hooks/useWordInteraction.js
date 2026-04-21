@@ -156,14 +156,18 @@ function getSentenceContaining(node, offset) {
 }
 
 // Хук перехватывает нажатия на текст и вызывает onWord(word, rect):
-// - мобиль: contextmenu (долгий тап) → координаты → находим слово/предложение → попап
+// - мобиль: двойной тап → всегда переводит слово
+// - мобиль: долгий тап (contextmenu) → переводит предложение (translateLine=ON) или слово
 // - десктоп: выделение мышью → mouseup → попап
 //
-// translateLine: если true — переводим предложение целиком вместо отдельного слова
-export function useWordInteraction(containerRef, onWord, translateLine = false) {
+// Долгий тап всегда переводит предложение, двойной тап всегда переводит слово
+export function useWordInteraction(containerRef, onWord) {
 
   // Время последнего touchstart — чтобы отличать мышиный mouseup от тач-синтетического
   const lastTouchRef = useRef(0);
+
+  // Данные предыдущего тапа для определения double-tap
+  const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
 
   useEffect(() => {
     const onTouchStart = () => { lastTouchRef.current = Date.now(); };
@@ -189,19 +193,15 @@ export function useWordInteraction(containerRef, onWord, translateLine = false) 
     const caret = getCaretAt(e.clientX, e.clientY);
     if (!caret) return;
 
-    const wordResult = expandToWord(caret.node, caret.offset);
-    if (!wordResult) return;
-
-    if (translateLine) {
-      const result = getSentenceContaining(caret.node, caret.offset);
-      if (result) {
-        onWord(result.sentence, result.rect, result.rects);
-        return;
-      }
+    const result = getSentenceContaining(caret.node, caret.offset);
+    if (result) {
+      onWord(result.sentence, result.rect, result.rects);
+      return;
     }
 
-    onWord(wordResult.word, wordResult.rect, wordResult.rects);
-  }, [onWord, translateLine]);
+    const wordResult = expandToWord(caret.node, caret.offset);
+    if (wordResult) onWord(wordResult.word, wordResult.rect, wordResult.rects);
+  }, [onWord]);
 
   // Десктоп: пользователь выделил слово мышью — перехватываем в mouseup.
   // На мобайле mouseup синтезируется после тача — пропускаем если был недавний touchstart.
@@ -220,42 +220,55 @@ export function useWordInteraction(containerRef, onWord, translateLine = false) 
       const rect     = selRange.getBoundingClientRect();
       const rects    = Array.from(selRange.getClientRects());
 
-      if (translateLine) {
-        let node   = selRange.startContainer;
-        let offset = selRange.startOffset;
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const tw = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
-          node   = tw.nextNode();
-          offset = 0;
-        }
-        if (node) {
-          const result = getSentenceContaining(node, offset);
-          sel.removeAllRanges();
-          if (result) {
-            onWord(result.sentence, result.rect, result.rects);
-            return;
-          }
-        }
-      }
-
       const word = cleanWord(selectedText);
       if (!word || !WORD_RE.test(word)) return;
 
       sel.removeAllRanges();
       onWord(word, rect, rects);
     }, 0);
-  }, [onWord, translateLine]);
+  }, [onWord]);
+
+  // Мобиль: double-tap → всегда переводит слово под пальцем.
+  // Вешаем на контейнер (не document) чтобы e.preventDefault() блокировал
+  // всплытие до document.touchend, который снимает выделение.
+  const onContainerTouchEnd = useCallback((e) => {
+    if (!e.changedTouches.length) return;
+    const touch = e.changedTouches[0];
+    const now   = Date.now();
+    const last  = lastTapRef.current;
+    const dx    = Math.abs(touch.clientX - last.x);
+    const dy    = Math.abs(touch.clientY - last.y);
+
+    if (now - last.time < 400 && dx < 30 && dy < 30) {
+      // double-tap — переводим слово
+      e.preventDefault();
+      window.getSelection()?.removeAllRanges();
+      const caret = getCaretAt(touch.clientX, touch.clientY);
+      if (caret) {
+        const result = expandToWord(caret.node, caret.offset);
+        if (result) onWord(result.word, result.rect, result.rects);
+      }
+      lastTapRef.current = { time: 0, x: 0, y: 0 };
+    } else {
+      lastTapRef.current = { time: now, x: touch.clientX, y: touch.clientY };
+    }
+  }, [onWord]);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
+    // touch-action: manipulation отключает зум по двойному тапу на iOS/Android
+    el.style.touchAction = 'manipulation';
+
     el.addEventListener('contextmenu', onContextMenu);
     el.addEventListener('mouseup',     onMouseUp);
+    el.addEventListener('touchend',    onContainerTouchEnd);
 
     return () => {
       el.removeEventListener('contextmenu', onContextMenu);
       el.removeEventListener('mouseup',     onMouseUp);
+      el.removeEventListener('touchend',    onContainerTouchEnd);
     };
-  }, [containerRef, onContextMenu, onMouseUp]);
+  }, [containerRef, onContextMenu, onMouseUp, onContainerTouchEnd]);
 }

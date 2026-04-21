@@ -3,7 +3,6 @@ import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { useWordInteraction } from '../hooks/useWordInteraction';
 import { saveLevel } from '../hooks/useBookLevel';
 import { useFontSize } from '../hooks/useFontSize';
-import { useTranslateLine } from '../hooks/useTranslateLine';
 import { useSwipeNavSetting } from '../hooks/useSwipeNavSetting';
 import { usePageNumbers } from '../hooks/usePageNumbers';
 import { useSwipeNav } from '../hooks/useSwipeNav';
@@ -20,7 +19,6 @@ function ChapterContent({ chapter, author, title, idx, level }) {
   // Тип анимации: 'flip' для свайпа (мобильный), 'fade' для клика (десктоп)
   const [animType, setAnimType]    = useState('flip');
   const [fontSize]                 = useFontSize();
-  const [translateLine]            = useTranslateLine();
   const [swipeNav]                 = useSwipeNavSetting();
   const [showPageNumbers]          = usePageNumbers();
   const navigate                   = useNavigate();
@@ -87,8 +85,8 @@ function ChapterContent({ chapter, author, title, idx, level }) {
 
   // Взаимодействие со словами: textRef — режим прокрутки, containerRef — режим перелистывания
   // Хук безопасно игнорирует null-рефы, поэтому вызываем оба
-  useWordInteraction(textRef, handleWord, translateLine);
-  useWordInteraction(containerRef, handleWord, translateLine);
+  useWordInteraction(textRef, handleWord);
+  useWordInteraction(containerRef, handleWord);
 
   // Клик мышью по левой/правой половине контейнера — навигация на десктопе (анимация fade)
   // pointerType === 'mouse' исключает тач-тапы, которые тоже генерируют click-событие

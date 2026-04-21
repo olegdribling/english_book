@@ -84,7 +84,6 @@ english_book/
         ├── hooks/                        — кастомные React-хуки
         │   ├── useWordInteraction.js     — перехватывает выделение текста (тап/мышь), вызывает onWord()
         │   ├── useFontSize.js            — хранит размер шрифта читалки в localStorage
-        │   ├── useTranslateLine.js       — хранит настройку "переводить строку целиком" в localStorage
         │   ├── useSwipeNavSetting.js     — хранит настройку "навигация свайпом" в localStorage
         │   ├── useSwipeNav.js            — вешает touch-слушатели на document для свайп-навигации по главам
         │   ├── usePageNumbers.js         — хранит настройку "показывать нумерацию страниц" в localStorage

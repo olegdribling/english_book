@@ -72,6 +72,19 @@
   font-size: 20px;
   color: var(--text-secondary);
   line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Точка — индикатор посещённого урока */
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .center {

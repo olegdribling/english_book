@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getVisited } from './EnglishPodLesson';
 import styles from './EnglishPod.module.css';
 
 // Ключ для сохранения активного уровня между переходами
@@ -18,10 +19,14 @@ export default function EnglishPod() {
   const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
+  const [visited, setVisited] = useState(() => getVisited());
   const [activeLevel, setActiveLevel] = useState(
     () => sessionStorage.getItem(LEVEL_KEY) || ''
   );
   const navigate = useNavigate();
+
+  // Обновляем visited при каждом возврате на страницу
+  useEffect(() => { setVisited(getVisited()); }, [activeLevel]);
 
   useEffect(() => {
     fetch('/api/englishpod')
@@ -76,7 +81,10 @@ export default function EnglishPod() {
             >
               <span className={styles.number}>{number}</span>
               <span className={styles.title}>{title}</span>
-              <span className={styles.arrow}>›</span>
+              <span className={styles.arrow}>
+                {visited[`${activeLevel}__${folder}`] && <span className={styles.dot} />}
+                ›
+              </span>
             </button>
           </li>
         ))}
