@@ -206,7 +206,7 @@ export default function Reader() {
 
   useEffect(() => {
     fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/${index}?level=${level}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(setChapter)
       .catch(() => setError('Could not load chapter'));
   }, [author, title, index, level]);

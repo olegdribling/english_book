@@ -15,7 +15,7 @@ export default function Library() {
 
   useEffect(() => {
     fetch('/api/books')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(data => { setBooks(data); setLoading(false); })
       .catch(() => { setError('Could not load library'); setLoading(false); });
   }, []);

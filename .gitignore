@@ -5,5 +5,5 @@ frontend/node_modules/
 frontend/dist/
 .claude/
 
-# Медиафайлы EnglishPod (MP3, PDF) — загружаются на сервер отдельно по SFTP
-library/EnglishPod/
+# Все книги загружаются на сервер по SFTP, не через git
+library/

@@ -71,14 +71,16 @@ export default function EnglishPodLesson() {
     const base = `/englishpod-files/${encodeURIComponent(level)}/${encodeURIComponent(folder)}`;
 
     fetch(`/api/englishpod/${encodeURIComponent(level)}/${encodeURIComponent(folder)}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(async data => {
         setLesson(data);
         if (data.html) {
-          const res   = await fetch(`${base}/${encodeURIComponent(data.html)}`);
-          const text  = await res.text();
-          const match = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-          setHtmlContent(match ? match[1] : text);
+          const res = await fetch(`${base}/${encodeURIComponent(data.html)}`);
+          if (res.ok) {
+            const text  = await res.text();
+            const match = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            setHtmlContent(match ? match[1] : text);
+          }
         }
         setLoading(false);
       })

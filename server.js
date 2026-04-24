@@ -401,6 +401,7 @@ app.get('/api/englishpod/:level/:folder', async (req, res) => {
 
     res.json({ pdf, html, audio });
   } catch (err) {
+    if (err.code === 'ENOENT') return res.status(404).json({ error: 'Lesson not found' });
     console.error(err);
     res.status(500).json({ error: 'Failed to read lesson' });
   }

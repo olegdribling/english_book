@@ -30,7 +30,7 @@ export default function EnglishPod() {
 
   useEffect(() => {
     fetch('/api/englishpod')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(json => {
         setData(json);
         // Устанавливаем первый уровень если ещё не выбран
