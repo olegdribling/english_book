@@ -237,8 +237,8 @@ export default function Reader() {
   if (!chapter) return <div className={styles.center}><p className={styles.hint}>Loading...</p></div>;
 
   return (
-    <div className={audioUrl ? styles.readerLayout : undefined}>
-      <div className={audioUrl ? styles.readerScroll : undefined}>
+    <div className={styles.readerLayout}>
+      <div className={styles.readerScroll}>
         <ChapterContent chapter={chapter} author={author} title={title} idx={parseInt(index, 10)} level={level} hasAudio={false} />
       </div>
       {audioUrl && (
