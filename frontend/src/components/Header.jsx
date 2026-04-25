@@ -14,7 +14,7 @@ const TAB_TITLES = {
 // - читалка (/book/.../chapter/N) → "< Contents" + название книги по центру
 // - оглавление (/book/...)        → "< Library"  + название книги по центру
 function getBackInfo(pathname, level) {
-  const lvlQ = level ? `?level=${level}` : '';
+  const lvlQ = level ? `?level=${encodeURIComponent(level)}` : '';
 
   const chapterMatch = pathname.match(/^\/book\/[^/]+\/([^/]+)\/chapter\/\d+$/);
   if (chapterMatch) {

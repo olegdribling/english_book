@@ -29,7 +29,7 @@ export default function BookToc() {
   if (!toc)  return <div className={styles.center}><p className={styles.hint}>Loading...</p></div>;
 
   const base = `/book/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter`;
-  const lvlQ = `?level=${level}`;
+  const lvlQ = `?level=${encodeURIComponent(level)}`;
 
   return (
     <div className={styles.page}>

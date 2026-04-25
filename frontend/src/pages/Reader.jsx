@@ -68,7 +68,7 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
   }, [scrollKey, swipeNav]);
 
   const base    = `/book/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter`;
-  const lvlQ    = `?level=${level}`;
+  const lvlQ    = `?level=${encodeURIComponent(level)}`;
   const prevUrl = idx > 0 ? `${base}/${idx - 1}${lvlQ}` : null;
   const nextUrl = idx < chapter.total - 1 ? `${base}/${idx + 1}${lvlQ}` : null;
 

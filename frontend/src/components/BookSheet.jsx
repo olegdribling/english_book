@@ -36,7 +36,7 @@ export default function BookSheet({ book, onClose }) {
     const author  = encodeURIComponent(book.author);
     const title   = encodeURIComponent(originalTitle);
     const chapter = hasProgress ? savedChapter : 0;
-    navigate(`/book/${author}/${title}/chapter/${chapter}?level=${level}`);
+    navigate(`/book/${author}/${title}/chapter/${chapter}?level=${encodeURIComponent(level)}`);
     onClose();
   };
 
