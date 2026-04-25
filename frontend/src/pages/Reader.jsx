@@ -210,7 +210,7 @@ export default function Reader() {
   const audioKey                 = `audioTime:${author}/${title}`;
 
   useEffect(() => {
-    fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/${index}?level=${level}`)
+    fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/${index}?level=${encodeURIComponent(level)}`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(data => {
         setChapter(data);

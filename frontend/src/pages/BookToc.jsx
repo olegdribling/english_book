@@ -11,7 +11,7 @@ export default function BookToc() {
   const navigate          = useNavigate();
 
   useEffect(() => {
-    fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/toc?level=${level}`)
+    fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/toc?level=${encodeURIComponent(level)}`)
       .then(r => r.json())
       .then(data => {
         if (data.noToc) {
