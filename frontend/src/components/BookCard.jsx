@@ -1,3 +1,4 @@
+import { Volume2 } from 'lucide-react';
 import { LEVEL_COLORS } from '../hooks/useBookLevel';
 import styles from './BookCard.module.css';
 
@@ -18,7 +19,11 @@ export default function BookCard({ title, author, coverUrl, level, audioUrl, onS
             {level}
           </span>
         )}
-        {audioUrl && <span className={styles.audioBadge}>🔊</span>}
+        {audioUrl && (
+          <span className={styles.audioBadge}>
+            <Volume2 size={15} strokeWidth={2.5} />
+          </span>
+        )}
       </div>
       <div className={styles.info}>
         <p className={styles.title}>{title}</p>
