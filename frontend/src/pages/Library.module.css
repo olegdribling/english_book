@@ -3,6 +3,33 @@
   max-width: 960px;
 }
 
+/* Горизонтальная полоса табов выбора уровня */
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 0 16px;
+}
+
+/* Один таб уровня */
+.tab {
+  flex: 1;
+  padding: 7px 4px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+/* Активный таб — цвет фона задаётся inline из LEVEL_COLORS */
+.tabActive {
+  color: #fff;
+}
+
 /* Сетка книг: 3 колонки на мобиле */
 .grid {
   display: grid;
