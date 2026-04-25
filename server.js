@@ -14,7 +14,7 @@ const LIBRARY_DIR = process.env.LIBRARY_DIR || join(__dirname, 'library');
 const ENGLISHPOD_DIR = process.env.ENGLISHPOD_DIR || join(__dirname, 'library', 'EnglishPod');
 
 // Все уровни сложности — папки внутри library/
-const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
+const LEVELS = ['A1', 'A2', 'B1', 'B1+', 'B2', 'B2+', 'C1'];
 
 // Расширения файлов обложек
 const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
@@ -136,9 +136,9 @@ function extractChapter(text, chapter, nextChapter) {
 
 // ── Routes ───────────────────────────────────────────────────────────────────
 
-// Читаем книги из одной директории и возвращаем массив объектов { title, author, coverUrl }
-// getCoverUrl — функция которая по author+title находит URL обложки
-async function readBooksFromDir(baseDir, getCoverUrl) {
+// Читаем книги из одной директории и возвращаем массив объектов { title, author, coverUrl, audioUrl }
+// getAssets — функция которая по author+title возвращает { coverUrl, audioUrl }
+async function readBooksFromDir(baseDir, getAssets) {
   const books = [];
   try {
     const authors = await readdir(baseDir);
@@ -150,7 +150,8 @@ async function readBooksFromDir(baseDir, getCoverUrl) {
       for (const title of titles) {
         const bookPath = join(authorPath, title);
         if (!(await stat(bookPath)).isDirectory()) continue;
-        books.push({ title, author, coverUrl: await getCoverUrl(author, title, bookPath) });
+        const assets = await getAssets(author, title, bookPath);
+        books.push({ title, author, ...assets });
       }
     }
   } catch {
@@ -159,14 +160,18 @@ async function readBooksFromDir(baseDir, getCoverUrl) {
   return books;
 }
 
-// Ищем обложку в папке книги и возвращаем её URL
-// level — подпапка внутри library/ (A1, B2, C1 и т.д.), null для корня
-async function findCoverUrl(author, title, bookPath, level) {
+// Ищем обложку и MP3-озвучку в папке книги, возвращаем { coverUrl, audioUrl }
+// level — подпапка внутри library/ (A1, B2, C1 и т.д.)
+async function findBookAssets(author, title, bookPath, level) {
   const files = await readdir(bookPath);
   const coverFile = files.find(f => IMAGE_EXTS.has(extname(f).toLowerCase()));
-  if (!coverFile) return null;
-  const levelPart = level ? `${encodeURIComponent(level)}/` : '';
-  return `/covers/${levelPart}${encodeURIComponent(author)}/${encodeURIComponent(title)}/${encodeURIComponent(coverFile)}`;
+  const audioFile = files.find(f => f.toLowerCase().endsWith('.mp3'));
+  const levelPart = `${encodeURIComponent(level)}/`;
+  const base = `/covers/${levelPart}${encodeURIComponent(author)}/${encodeURIComponent(title)}/`;
+  return {
+    coverUrl: coverFile ? base + encodeURIComponent(coverFile) : null,
+    audioUrl: audioFile ? base + encodeURIComponent(audioFile) : null,
+  };
 }
 
 // Собираем все книги из library/{LEVEL}/ по каждому уровню
@@ -177,7 +182,7 @@ async function readAllBooks() {
     const levelDir = join(LIBRARY_DIR, level);
     const levelBooks = await readBooksFromDir(
       levelDir,
-      (author, title, bookPath) => findCoverUrl(author, title, bookPath, level)
+      (author, title, bookPath) => findBookAssets(author, title, bookPath, level)
     );
     levelBooks.forEach(b => books.push({ ...b, level }));
   }
@@ -235,7 +240,9 @@ app.get('/api/books/:author/:title/chapter/:index', async (req, res) => {
     // Если оглавление не найдено — весь текст как единственная глава
     if (chapters.length === 0) {
       if (index !== 0) return res.status(404).json({ error: 'Chapter not found' });
-      return res.json({ index: 0, label: null, title, text, total: 1 });
+      const bookDir = join(LIBRARY_DIR, level, author, title);
+      const { audioUrl } = await findBookAssets(author, title, bookDir, level);
+      return res.json({ index: 0, label: null, title, text, total: 1, audioUrl });
     }
 
     if (index < 0 || index >= chapters.length) {
@@ -246,12 +253,17 @@ app.get('/api/books/:author/:title/chapter/:index', async (req, res) => {
     const nextChapter = chapters[index + 1];
     const chapterText = extractChapter(text, chapter, nextChapter);
 
+    // Ищем MP3-озвучку в папке книги
+    const bookDir = join(LIBRARY_DIR, level, author, title);
+    const { audioUrl } = await findBookAssets(author, title, bookDir, level);
+
     res.json({
       index,
       label: chapter.label,
       title: chapter.title,
       text: chapterText,
       total: chapters.length,
+      audioUrl,
     });
   } catch (err) {
     console.error(err);

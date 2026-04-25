@@ -13,7 +13,7 @@ import styles from './Reader.module.css';
 
 // Компонент текста главы — рендерится только после загрузки данных,
 // поэтому textRef гарантированно указывает на DOM-элемент когда хук запускается
-function ChapterContent({ chapter, author, title, idx, level }) {
+function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
   const [popup, setPopup]          = useState(null);
   const [animDir, setAnimDir]      = useState(null);
   // Тип анимации: 'flip' для свайпа (мобильный), 'fade' для клика (десктоп)
@@ -164,7 +164,7 @@ function ChapterContent({ chapter, author, title, idx, level }) {
   // ── Режим прокрутки (оригинальный) ──
   return (
     <>
-      <div className={styles.page}>
+      <div className={styles.page} style={hasAudio ? { paddingBottom: 80 } : undefined}>
         <p className={styles.label}>{chapter.label}</p>
         <h2 className={styles.chapterTitle}>{chapter.title}</h2>
 
@@ -203,16 +203,57 @@ export default function Reader() {
   const level                    = searchParams.get('level') || 'C1';
   const [chapter, setChapter]    = useState(null);
   const [error, setError]        = useState(null);
+  // audioUrl хранится на уровне Reader чтобы плеер не сбрасывался при смене глав
+  const [audioUrl, setAudioUrl]  = useState(null);
+  const audioRef                 = useRef(null);
+  // Ключ для сохранения позиции воспроизведения в localStorage
+  const audioKey                 = `audioTime:${author}/${title}`;
 
   useEffect(() => {
     fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/${index}?level=${level}`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(setChapter)
+      .then(data => {
+        setChapter(data);
+        if (data.audioUrl) setAudioUrl(data.audioUrl);
+      })
       .catch(() => setError('Could not load chapter'));
   }, [author, title, index, level]);
+
+  // Восстанавливаем позицию воспроизведения когда аудио готово к перемотке
+  const handleLoadedMetadata = useCallback(() => {
+    const saved = parseFloat(localStorage.getItem(audioKey));
+    if (saved && audioRef.current) audioRef.current.currentTime = saved;
+  }, [audioKey]);
+
+  // Сохраняем позицию каждые 5 секунд во время воспроизведения
+  const handleTimeUpdate = useCallback(() => {
+    const el = audioRef.current;
+    if (!el || el.paused) return;
+    const now = Math.floor(el.currentTime);
+    if (now % 5 === 0) localStorage.setItem(audioKey, String(el.currentTime));
+  }, [audioKey]);
 
   if (error)    return <div className={styles.center}><p className={styles.hint}>{error}</p></div>;
   if (!chapter) return <div className={styles.center}><p className={styles.hint}>Loading...</p></div>;
 
-  return <ChapterContent chapter={chapter} author={author} title={title} idx={parseInt(index, 10)} level={level} />;
+  return (
+    <div className={audioUrl ? styles.readerLayout : undefined}>
+      <div className={audioUrl ? styles.readerScroll : undefined}>
+        <ChapterContent chapter={chapter} author={author} title={title} idx={parseInt(index, 10)} level={level} hasAudio={false} />
+      </div>
+      {audioUrl && (
+        <div className={styles.audioBar}>
+          <audio
+            ref={audioRef}
+            controls
+            controlsList="nodownload"
+            src={audioUrl}
+            className={styles.audioPlayer}
+            onLoadedMetadata={handleLoadedMetadata}
+            onTimeUpdate={handleTimeUpdate}
+          />
+        </div>
+      )}
+    </div>
+  );
 }

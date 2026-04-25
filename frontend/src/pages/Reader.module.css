@@ -68,6 +68,34 @@
   .page { padding: 40px 40px 48px; }
 }
 
+/* Обёртка читалки с плеером: flex-колонка на всю высоту .main */
+.readerLayout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Область текста — скроллится внутри себя */
+.readerScroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
+/* Плеер в нормальном потоке — никогда не перекрывает текст */
+.audioBar {
+  flex-shrink: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 8px 16px;
+}
+
+.audioPlayer {
+  width: 100%;
+}
+
 .center {
   display: flex;
   align-items: center;
