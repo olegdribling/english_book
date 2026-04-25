@@ -6,6 +6,9 @@ const WORD_RE = /^[a-zA-Z''\u2019-]+$/;
 // Символы которые входят в слово
 const WORD_CHAR = /[a-zA-Z''\u2019]/;
 
+// iOS не даёт координаты в contextmenu и даёт неверный каретRangeFromPoint в touchend
+const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/.test(navigator.userAgent);
+
 // Убираем из строки всё кроме букв, апострофов и дефисов,
 // затем срезаем дефисы с краёв (чтобы не было "-hole" или "rabbit-")
 function cleanWord(str) {
@@ -157,10 +160,10 @@ function getSentenceContaining(node, offset) {
 
 // Хук перехватывает нажатия на текст и вызывает onWord(word, rect):
 // - мобиль: двойной тап → всегда переводит слово
-// - мобиль: долгий тап (contextmenu) → переводит предложение (translateLine=ON) или слово
+// - мобиль: долгий тап → переводит предложение (или слово если предложение не найдено)
+//   iOS: долгий тап через touchstart+таймер (contextmenu на iOS не даёт координаты)
+//   Android: долгий тап через contextmenu
 // - десктоп: выделение мышью → mouseup → попап
-//
-// Долгий тап всегда переводит предложение, двойной тап всегда переводит слово
 export function useWordInteraction(containerRef, onWord) {
 
   // Время последнего touchstart — чтобы отличать мышиный mouseup от тач-синтетического
@@ -168,6 +171,12 @@ export function useWordInteraction(containerRef, onWord) {
 
   // Данные предыдущего тапа для определения double-tap
   const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
+
+  // iOS: координаты сохранённые в touchstart — точнее чем changedTouches в touchend
+  const touchStartCoordsRef = useRef(null);
+
+  // iOS: таймер долгого нажатия
+  const longPressTimerRef = useRef(null);
 
   useEffect(() => {
     const onTouchStart = () => { lastTouchRef.current = Date.now(); };
@@ -182,26 +191,61 @@ export function useWordInteraction(containerRef, onWord) {
     };
   }, []);
 
-  // Мобиль: contextmenu срабатывает именно на долгий тап.
-  // preventDefault вызывается глобально в main.jsx, здесь только логика перевода.
-  const onContextMenu = useCallback((e) => {
-    if (!e.clientX && !e.clientY) return;
-
-    // Снимаем выделение которое браузер мог поставить при долгом нажатии
+  // Общая логика долгого нажатия — используется и в contextmenu (Android), и в таймере (iOS)
+  const handleLongPress = useCallback((x, y) => {
     window.getSelection()?.removeAllRanges();
+    // Сбрасываем чтобы следующий тап после долгого не выглядел как double-tap
+    lastTapRef.current = { time: 0, x: 0, y: 0 };
 
-    const caret = getCaretAt(e.clientX, e.clientY);
+    const caret = getCaretAt(x, y);
     if (!caret) return;
 
     const result = getSentenceContaining(caret.node, caret.offset);
-    if (result) {
-      onWord(result.sentence, result.rect, result.rects);
-      return;
-    }
+    if (result) { onWord(result.sentence, result.rect, result.rects); return; }
 
     const wordResult = expandToWord(caret.node, caret.offset);
     if (wordResult) onWord(wordResult.word, wordResult.rect, wordResult.rects);
   }, [onWord]);
+
+  // Android/desktop: contextmenu срабатывает на долгий тап и правую кнопку мыши.
+  // preventDefault вызывается глобально в main.jsx, здесь только логика перевода.
+  // На iOS этот обработчик не используется — долгий тап обрабатывается таймером ниже.
+  const onContextMenu = useCallback((e) => {
+    if (isIOS) return;
+    if (!e.clientX && !e.clientY) return;
+    handleLongPress(e.clientX, e.clientY);
+  }, [handleLongPress]);
+
+  // iOS: touchstart на контейнере — сохраняем координаты и запускаем таймер долгого нажатия
+  const onContainerTouchStart = useCallback((e) => {
+    if (!isIOS) return;
+    if (e.touches.length !== 1) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+      return;
+    }
+    const touch = e.touches[0];
+    touchStartCoordsRef.current = { x: touch.clientX, y: touch.clientY };
+
+    clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      longPressTimerRef.current = null;
+      const coords = touchStartCoordsRef.current;
+      if (coords) handleLongPress(coords.x, coords.y);
+    }, 600);
+  }, [handleLongPress]);
+
+  // iOS: если палец сдвинулся более чем на 10px — отменяем долгое нажатие (это свайп)
+  const onContainerTouchMove = useCallback((e) => {
+    if (!isIOS || !longPressTimerRef.current) return;
+    const touch = e.touches[0];
+    const saved = touchStartCoordsRef.current;
+    if (!saved) return;
+    if (Math.abs(touch.clientX - saved.x) > 10 || Math.abs(touch.clientY - saved.y) > 10) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
 
   // Десктоп: пользователь выделил слово мышью — перехватываем в mouseup.
   // На мобайле mouseup синтезируется после тача — пропускаем если был недавний touchstart.
@@ -229,28 +273,40 @@ export function useWordInteraction(containerRef, onWord) {
   }, [onWord]);
 
   // Мобиль: double-tap → всегда переводит слово под пальцем.
+  // iOS: для поиска слова используем координаты из touchstart — на touchend caretRangeFromPoint
+  //      может вернуть неверную позицию.
   // Вешаем на контейнер (не document) чтобы e.preventDefault() блокировал
   // всплытие до document.touchend, который снимает выделение.
   const onContainerTouchEnd = useCallback((e) => {
+    // Отменяем таймер долгого нажатия — он мог ещё не сработать
+    clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = null;
+
     if (!e.changedTouches.length) return;
     const touch = e.changedTouches[0];
     const now   = Date.now();
     const last  = lastTapRef.current;
-    const dx    = Math.abs(touch.clientX - last.x);
-    const dy    = Math.abs(touch.clientY - last.y);
+
+    // iOS: берём координаты из touchstart — точнее при определении позиции слова
+    const coords = (isIOS && touchStartCoordsRef.current)
+      ? touchStartCoordsRef.current
+      : { x: touch.clientX, y: touch.clientY };
+
+    const dx = Math.abs(coords.x - last.x);
+    const dy = Math.abs(coords.y - last.y);
 
     if (now - last.time < 400 && dx < 30 && dy < 30) {
       // double-tap — переводим слово
       e.preventDefault();
       window.getSelection()?.removeAllRanges();
-      const caret = getCaretAt(touch.clientX, touch.clientY);
+      const caret = getCaretAt(coords.x, coords.y);
       if (caret) {
         const result = expandToWord(caret.node, caret.offset);
         if (result) onWord(result.word, result.rect, result.rects);
       }
       lastTapRef.current = { time: 0, x: 0, y: 0 };
     } else {
-      lastTapRef.current = { time: now, x: touch.clientX, y: touch.clientY };
+      lastTapRef.current = { time: now, x: coords.x, y: coords.y };
     }
   }, [onWord]);
 
@@ -258,14 +314,18 @@ export function useWordInteraction(containerRef, onWord) {
     const el = containerRef.current;
     if (!el) return;
 
-    el.addEventListener('contextmenu', onContextMenu);
-    el.addEventListener('mouseup',     onMouseUp);
-    el.addEventListener('touchend',    onContainerTouchEnd);
+    el.addEventListener('contextmenu',  onContextMenu);
+    el.addEventListener('mouseup',      onMouseUp);
+    el.addEventListener('touchstart',   onContainerTouchStart, { passive: true });
+    el.addEventListener('touchmove',    onContainerTouchMove,  { passive: true });
+    el.addEventListener('touchend',     onContainerTouchEnd);
 
     return () => {
-      el.removeEventListener('contextmenu', onContextMenu);
-      el.removeEventListener('mouseup',     onMouseUp);
-      el.removeEventListener('touchend',    onContainerTouchEnd);
+      el.removeEventListener('contextmenu',  onContextMenu);
+      el.removeEventListener('mouseup',      onMouseUp);
+      el.removeEventListener('touchstart',   onContainerTouchStart);
+      el.removeEventListener('touchmove',    onContainerTouchMove);
+      el.removeEventListener('touchend',     onContainerTouchEnd);
     };
-  }, [containerRef, onContextMenu, onMouseUp, onContainerTouchEnd]);
+  }, [containerRef, onContextMenu, onMouseUp, onContainerTouchStart, onContainerTouchMove, onContainerTouchEnd]);
 }

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { saveLevel } from '../hooks/useBookLevel';
 import styles from './BookSheet.module.css';
@@ -40,7 +41,7 @@ export default function BookSheet({ book, onClose }) {
     onClose();
   };
 
-  return (
+  return createPortal(
     <div className={styles.backdrop} onClick={handleBackdrop}>
       <div className={styles.sheet}>
         {/* Ручка для визуального обозначения что лист можно закрыть */}
@@ -65,6 +66,7 @@ export default function BookSheet({ book, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
