@@ -207,10 +207,11 @@ export function useWordInteraction(containerRef, onWord) {
     if (wordResult) onWord(wordResult.word, wordResult.rect, wordResult.rects);
   }, [onWord]);
 
-  // Android/desktop: contextmenu срабатывает на долгий тап и правую кнопку мыши.
-  // preventDefault вызывается глобально в main.jsx, здесь только логика перевода.
-  // На iOS этот обработчик не используется — долгий тап обрабатывается таймером ниже.
+  // Contextmenu срабатывает на долгий тап (Android) и правую кнопку мыши (desktop).
+  // e.preventDefault() вызываем всегда — блокируем нативное меню iOS/Android.
+  // На iOS координаты могут отсутствовать, долгий тап обрабатывается таймером ниже.
   const onContextMenu = useCallback((e) => {
+    e.preventDefault();
     if (isIOS) return;
     if (!e.clientX && !e.clientY) return;
     handleLongPress(e.clientX, e.clientY);

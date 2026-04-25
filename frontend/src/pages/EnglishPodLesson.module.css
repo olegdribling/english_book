@@ -32,6 +32,15 @@
   user-select: text;
 }
 
+/* На тач-устройствах запрещаем выделение и нативное меню iOS */
+@media (pointer: coarse) {
+  .htmlContent {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
 /* Стили тегов внутри HTML из PDF */
 .htmlContent p {
   margin: 0 0 12px;
