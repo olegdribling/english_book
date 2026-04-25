@@ -140,22 +140,28 @@ function extractChapter(text, chapter, nextChapter) {
 // getAssets — функция которая по author+title возвращает { coverUrl, audioUrl }
 async function readBooksFromDir(baseDir, getAssets) {
   const books = [];
-  try {
-    const authors = await readdir(baseDir);
-    for (const author of authors) {
-      const authorPath = join(baseDir, author);
-      if (!(await stat(authorPath)).isDirectory()) continue;
+  let authors;
+  try { authors = await readdir(baseDir); } catch { return books; }
 
-      const titles = await readdir(authorPath);
-      for (const title of titles) {
-        const bookPath = join(authorPath, title);
+  for (const author of authors) {
+    const authorPath = join(baseDir, author);
+    try {
+      if (!(await stat(authorPath)).isDirectory()) continue;
+    } catch { continue; }
+
+    let titles;
+    try { titles = await readdir(authorPath); } catch { continue; }
+
+    for (const title of titles) {
+      const bookPath = join(authorPath, title);
+      try {
         if (!(await stat(bookPath)).isDirectory()) continue;
         const assets = await getAssets(author, title, bookPath);
         books.push({ title, author, ...assets });
+      } catch (err) {
+        console.error(`[library] skip ${author}/${title}:`, err.message);
       }
     }
-  } catch {
-    // Директория не существует — просто возвращаем пустой массив
   }
   return books;
 }
@@ -163,7 +169,8 @@ async function readBooksFromDir(baseDir, getAssets) {
 // Ищем обложку и MP3-озвучку в папке книги, возвращаем { coverUrl, audioUrl }
 // level — подпапка внутри library/ (A1, B2, C1 и т.д.)
 async function findBookAssets(author, title, bookPath, level) {
-  const files = await readdir(bookPath);
+  let files;
+  try { files = await readdir(bookPath); } catch { return { coverUrl: null, audioUrl: null }; }
   const coverFile = files.find(f => IMAGE_EXTS.has(extname(f).toLowerCase()));
   const audioFile = files.find(f => f.toLowerCase().endsWith('.mp3'));
   const levelPart = `${encodeURIComponent(level)}/`;
