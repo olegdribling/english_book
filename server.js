@@ -7,11 +7,11 @@ import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
-// Директория с книгами: library/{LEVEL}/{Автор}/{Книга}/
-const LIBRARY_DIR = join(__dirname, 'library');
+// Директория с книгами: на сервере хранится вне git-папки чтобы деплой не удалял файлы
+const LIBRARY_DIR = process.env.LIBRARY_DIR || join(__dirname, 'library');
 
 // Директория EnglishPod: на сервере хранится вне git-папки чтобы деплой не удалял файлы
-const ENGLISHPOD_DIR = process.env.ENGLISHPOD_DIR || join(LIBRARY_DIR, 'EnglishPod');
+const ENGLISHPOD_DIR = process.env.ENGLISHPOD_DIR || join(__dirname, 'library', 'EnglishPod');
 
 // Все уровни сложности — папки внутри library/
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
