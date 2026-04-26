@@ -49,14 +49,14 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
     const main = document.querySelector('.main');
     if (!main) return;
 
-    const saved = sessionStorage.getItem(scrollKey);
+    const saved = localStorage.getItem(scrollKey);
     if (saved) main.scrollTop = parseInt(saved, 10);
 
     let timer;
     const onScroll = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        sessionStorage.setItem(scrollKey, String(main.scrollTop));
+        localStorage.setItem(scrollKey, String(main.scrollTop));
       }, 100);
     };
 
@@ -73,14 +73,14 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
   const nextUrl = idx < chapter.total - 1 ? `${base}/${idx + 1}${lvlQ}` : null;
 
   // Пагинация текста — вычисляется только когда включён режим перелистывания
-  const savedPageIndex = swipeNav ? parseInt(sessionStorage.getItem(flipKey) || '0', 10) : 0;
+  const savedPageIndex = swipeNav ? parseInt(localStorage.getItem(flipKey) || '0', 10) : 0;
   const { containerRef, pages, pageIndex, goNext, goPrev, isFirst, isLast, total } =
     usePaginate({ text: swipeNav ? chapter.text : '', fontSize, initialPageIndex: savedPageIndex });
 
   // Сохраняем текущую страницу в sessionStorage при каждом перелистывании
   useEffect(() => {
     if (!swipeNav) return;
-    sessionStorage.setItem(flipKey, String(pageIndex));
+    localStorage.setItem(flipKey, String(pageIndex));
   }, [flipKey, pageIndex, swipeNav]);
 
   // Взаимодействие со словами: textRef — режим прокрутки, containerRef — режим перелистывания
