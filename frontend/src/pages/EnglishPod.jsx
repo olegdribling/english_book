@@ -21,7 +21,7 @@ export default function EnglishPod() {
   const [error, setError]     = useState(null);
   const [visited, setVisited] = useState(() => getVisited());
   const [activeLevel, setActiveLevel] = useState(
-    () => sessionStorage.getItem(LEVEL_KEY) || ''
+    () => localStorage.getItem(LEVEL_KEY) || ''
   );
   const navigate = useNavigate();
 
@@ -46,7 +46,7 @@ export default function EnglishPod() {
   // Сохраняем выбранный уровень
   function selectLevel(level) {
     setActiveLevel(level);
-    sessionStorage.setItem(LEVEL_KEY, level);
+    localStorage.setItem(LEVEL_KEY, level);
   }
 
   if (loading) return <div className={styles.center}><p className={styles.hint}>Loading...</p></div>;

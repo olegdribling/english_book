@@ -77,7 +77,7 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
   const { containerRef, pages, pageIndex, goNext, goPrev, isFirst, isLast, total } =
     usePaginate({ text: swipeNav ? chapter.text : '', fontSize, initialPageIndex: savedPageIndex });
 
-  // Сохраняем текущую страницу в sessionStorage при каждом перелистывании
+  // Сохраняем текущую страницу при каждом перелистывании
   useEffect(() => {
     if (!swipeNav) return;
     localStorage.setItem(flipKey, String(pageIndex));

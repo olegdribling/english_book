@@ -15,7 +15,7 @@ export default function Library() {
   const [selectedBook, setSelectedBook] = useState(null);
   // Активный уровень фильтрации — сохраняется между переходами
   const [activeLevel, setActiveLevel] = useState(
-    () => sessionStorage.getItem('libraryLevel') || ''
+    () => localStorage.getItem('libraryLevel') || ''
   );
 
   useEffect(() => {
@@ -25,11 +25,11 @@ export default function Library() {
         setBooks(data);
         setLoading(false);
         // При первом визите выбираем первый уровень у которого есть книги
-        if (!sessionStorage.getItem('libraryLevel') && data.length > 0) {
+        if (!localStorage.getItem('libraryLevel') && data.length > 0) {
           const first = LEVELS.find(l => data.some(b => b.level === l.value));
           if (first) {
             setActiveLevel(first.value);
-            sessionStorage.setItem('libraryLevel', first.value);
+            localStorage.setItem('libraryLevel', first.value);
           }
         }
       })
@@ -42,14 +42,14 @@ export default function Library() {
     const main = document.querySelector('.main');
     if (!main) return;
 
-    const saved = sessionStorage.getItem(SCROLL_KEY);
+    const saved = localStorage.getItem(SCROLL_KEY);
     if (saved) main.scrollTop = parseInt(saved, 10);
 
     let timer;
     const onScroll = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        sessionStorage.setItem(SCROLL_KEY, String(main.scrollTop));
+        localStorage.setItem(SCROLL_KEY, String(main.scrollTop));
       }, 100);
     };
 
@@ -66,7 +66,7 @@ export default function Library() {
 
   function selectLevel(level) {
     setActiveLevel(level);
-    sessionStorage.setItem('libraryLevel', level);
+    localStorage.setItem('libraryLevel', level);
   }
 
   if (loading) return <div className={styles.center}><p className={styles.hint}>Loading...</p></div>;

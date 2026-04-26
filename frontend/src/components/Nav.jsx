@@ -25,21 +25,21 @@ export default function Nav({ active }) {
 
   // Сохраняем место когда находимся в соответствующем разделе
   if (isLibraryPath) {
-    sessionStorage.setItem(LAST_LIBRARY_KEY, pathname + search);
+    localStorage.setItem(LAST_LIBRARY_KEY, pathname + search);
   }
   if (pathname.startsWith('/englishpod')) {
-    sessionStorage.setItem(LAST_ENGLISHPOD_KEY, pathname + search);
+    localStorage.setItem(LAST_ENGLISHPOD_KEY, pathname + search);
   }
 
   // Library: если читаем книгу — на главную, иначе — на последнее место
   const libraryTo = isBookPage
     ? '/'
-    : (sessionStorage.getItem(LAST_LIBRARY_KEY) || '/');
+    : (localStorage.getItem(LAST_LIBRARY_KEY) || '/');
 
   // EnglishPod: если на странице урока — на список (/englishpod), иначе — на последнее место
   const englishPodTo = isEpLessonPage
     ? '/englishpod'
-    : (sessionStorage.getItem(LAST_ENGLISHPOD_KEY) || '/englishpod');
+    : (localStorage.getItem(LAST_ENGLISHPOD_KEY) || '/englishpod');
 
   return (
     <nav className={styles.nav}>
