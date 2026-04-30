@@ -161,6 +161,26 @@ export default function TranslationPopup({ word, rect, rects, onClose }) {
           </>
         )}
 
+        {/* Кнопка сохранения фразы в словарь */}
+        {isPhrase && (
+          <button
+            className={styles.savePhraseBtn}
+            onPointerDown={e => {
+              e.stopPropagation();
+              if (saved) return;
+              const t = translation && translation !== '—' ? translation : null;
+              saveWord(word, t);
+              window.dispatchEvent(new Event('savedWordsUpdated'));
+              setSaved(true);
+            }}
+          >
+            {saved
+              ? <Check size={15} strokeWidth={2} />
+              : <Plus size={15} strokeWidth={2} />
+            }
+          </button>
+        )}
+
         {/* Перевод */}
         <p className={styles.translation}>
           {loading ? '…' : translation}
