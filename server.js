@@ -285,11 +285,11 @@ const translationCache = new Map();
 
 // GET /api/translate?word=hello&to=RU
 app.get('/api/translate', async (req, res) => {
-  const { word, to = 'RU' } = req.query;
+  const { word, to = 'RU', from = 'EN' } = req.query;
   if (!word) return res.status(400).json({ error: 'word is required' });
 
   const clean = word.trim().toLowerCase();
-  const cacheKey = `${clean}:${to}`;
+  const cacheKey = `${clean}:${from}:${to}`;
   if (translationCache.has(cacheKey)) {
     return res.json({ word, translation: translationCache.get(cacheKey) });
   }
@@ -309,7 +309,7 @@ app.get('/api/translate', async (req, res) => {
         'Authorization': `DeepL-Auth-Key ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ text: [word], source_lang: 'EN', target_lang: to }),
+      body: JSON.stringify({ text: [word], source_lang: from, target_lang: to }),
     });
 
     const data = await response.json();

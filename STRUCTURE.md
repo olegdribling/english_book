@@ -79,7 +79,9 @@ english_book/
         │   ├── TranslationPopup.jsx      — попап с переводом слова над выделенным текстом
         │   ├── TranslationPopup.module.css — стили попапа перевода
         │   ├── BookPageFlip.jsx          — постраничный рендер текста с 3D-анимацией перелистывания книги
-        │   └── BookPageFlip.module.css   — стили и CSS-анимации перелистывания (rotateY, perspective)
+        │   ├── BookPageFlip.module.css   — стили и CSS-анимации перелистывания (rotateY, perspective)
+        │   ├── AddWordModal.jsx          — модальное окно ручного добавления слова в словарь (EN↔RU, автоперевод)
+        │   └── AddWordModal.module.css   — стили модального окна добавления слова
         │
         ├── hooks/                        — кастомные React-хуки
         │   ├── useWordInteraction.js     — перехватывает выделение текста (тап/мышь), вызывает onWord()

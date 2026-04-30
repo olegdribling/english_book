@@ -1,0 +1,141 @@
+/* Полупрозрачная подложка на весь экран — z-index выше Nav (100) и BookSheet (200) */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* Карточка модалки */
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px 16px 16px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* Шапка: заголовок + кнопка закрытия */
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+/* Строка с полем ввода и кнопкой очистки */
+.fieldRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Поле ввода текста */
+.input {
+  width: 100%;
+  padding: 12px 36px 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: var(--accent);
+}
+
+/* Кнопка очистки поля */
+.clearBtn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+/* Иконка-разделитель между полями */
+.arrows {
+  text-align: center;
+  font-size: 18px;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+/* Сообщение о дублировании слова */
+.duplicateMsg {
+  font-size: 13px;
+  color: #e55;
+  text-align: center;
+}
+
+/* Кнопка сохранения */
+.saveBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.saveBtn:not(:disabled):active {
+  opacity: 0.85;
+}
+
+/* Бейдж с определённым языком — EN или RU */
+.langBadge {
+  position: absolute;
+  left: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Сдвигаем текст вправо когда показан бейдж */
+.inputWithBadge {
+  padding-left: 36px;
+}
