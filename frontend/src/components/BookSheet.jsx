@@ -60,6 +60,11 @@ export default function BookSheet({ book, onClose }) {
           <p className={styles.title}>{originalTitle}</p>
           <p className={styles.author}>{book.author}</p>
 
+          {/* Описание книги — если есть файл *_about.txt */}
+          {book.about && (
+            <p className={styles.about}>{book.about}</p>
+          )}
+
           {/* Кнопка Читать / Продолжить */}
           <button className={styles.readBtn} onClick={handleRead}>
             {hasProgress ? 'Continue' : 'Read'}

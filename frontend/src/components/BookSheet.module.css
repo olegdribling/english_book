@@ -14,13 +14,17 @@
   to   { opacity: 1; }
 }
 
-/* Сам лист — поднимается снизу */
+/* Сам лист — поднимается снизу, не выше 90% экрана */
 .sheet {
   width: 100%;
+  max-height: 90dvh;
   background: var(--bg);
   border-radius: 20px 20px 0 0;
   padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
   animation: slideUp 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 @keyframes slideUp {
@@ -37,12 +41,15 @@
   margin: 12px auto 0;
 }
 
-/* Внутренний контент листа */
+/* Внутренний контент листа — flex-колонка, скролл только у описания */
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px 24px 32px;
+  overflow: hidden;
+  min-height: 0;
+  flex: 1;
 }
 
 /* Обложка книги */
@@ -83,6 +90,34 @@
   font-size: 13px;
   color: var(--text-secondary);
   text-align: center;
+}
+
+/* Описание книги из *_about.txt — скроллится если не влезает */
+.about {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.5;
+  max-width: 280px;
+  overflow-y: auto;
+  min-height: 0;
+  flex-shrink: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.about::-webkit-scrollbar {
+  width: 3px;
+}
+
+.about::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.about::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
 }
 
 /* Кнопка Читать / Продолжить */

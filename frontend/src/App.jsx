@@ -36,8 +36,8 @@ export default function App() {
 
   return (
     <div className="layout">
-      <Nav active={activeTab} routes={TAB_ROUTES} />
-      <Header activeTab={activeTab} />
+      <div id="app-nav"><Nav active={activeTab} routes={TAB_ROUTES} /></div>
+      <div id="app-header"><Header activeTab={activeTab} /></div>
       <main className="main">
         <Routes>
           <Route path="/"                                    element={<Library />} />

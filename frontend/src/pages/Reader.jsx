@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { useWordInteraction } from '../hooks/useWordInteraction';
 import { saveLevel } from '../hooks/useBookLevel';
 import { useFontSize } from '../hooks/useFontSize';
@@ -23,6 +24,37 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
   const [showPageNumbers]          = usePageNumbers();
   const navigate                   = useNavigate();
   const textRef                    = useRef(null);
+
+  // Полноэкранный режим — скрывает Nav и Header
+  const [fullscreen, setFullscreen] = useState(false);
+  // FAB видна пока пользователь взаимодействует с экраном, скрывается через 5 сек
+  const [fabVisible, setFabVisible] = useState(true);
+  const fabTimerRef                  = useRef(null);
+
+  // Сбрасываем таймер скрытия FAB — вызывается при любом касании экрана
+  const resetFabTimer = useCallback(() => {
+    setFabVisible(true);
+    clearTimeout(fabTimerRef.current);
+    fabTimerRef.current = setTimeout(() => setFabVisible(false), 5000);
+  }, []);
+
+  // Запускаем таймер при монтировании, подписываемся на касание и движение мыши
+  useEffect(() => {
+    resetFabTimer();
+    document.addEventListener('pointerdown', resetFabTimer);
+    document.addEventListener('mousemove', resetFabTimer);
+    return () => {
+      clearTimeout(fabTimerRef.current);
+      document.removeEventListener('pointerdown', resetFabTimer);
+      document.removeEventListener('mousemove', resetFabTimer);
+    };
+  }, [resetFabTimer]);
+
+  // Переключаем класс на body для скрытия Nav/Header через глобальный CSS
+  useEffect(() => {
+    document.body.classList.toggle('reading-fullscreen', fullscreen);
+    return () => document.body.classList.remove('reading-fullscreen');
+  }, [fullscreen]);
 
   const handleWord = useCallback((word, rect, rects) => {
     setPopup({ word, rect, rects });
@@ -125,6 +157,18 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
     onSwipeRight: handleSwipeRight,
   });
 
+  // FAB кнопка разворачивания/сворачивания на весь экран
+  const fab = (
+    <button
+      className={`${styles.readerFab} ${fullscreen ? styles.readerFabFullscreen : ''}`}
+      style={{ opacity: fabVisible ? 1 : 0, pointerEvents: fabVisible ? 'auto' : 'none' }}
+      onClick={() => setFullscreen(f => !f)}
+      aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+    >
+      {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+    </button>
+  );
+
   // ── Режим постраничного перелистывания ──
   if (swipeNav) {
     return (
@@ -148,6 +192,8 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
             <p className={styles.pageCount}>{pageIndex + 1} / {total}</p>
           )}
         </div>
+
+        {fab}
 
         {popup && (
           <TranslationPopup
@@ -183,6 +229,8 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
           )}
         </div>
       </div>
+
+      {fab}
 
       {popup && (
         <TranslationPopup

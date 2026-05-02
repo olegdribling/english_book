@@ -166,18 +166,26 @@ async function readBooksFromDir(baseDir, getAssets) {
   return books;
 }
 
-// Ищем обложку и MP3-озвучку в папке книги, возвращаем { coverUrl, audioUrl }
+// Ищем обложку, MP3-озвучку и файл описания (*_about.txt) в папке книги
 // level — подпапка внутри library/ (A1, B2, C1 и т.д.)
 async function findBookAssets(author, title, bookPath, level) {
   let files;
-  try { files = await readdir(bookPath); } catch { return { coverUrl: null, audioUrl: null }; }
+  try { files = await readdir(bookPath); } catch { return { coverUrl: null, audioUrl: null, about: null }; }
   const coverFile = files.find(f => IMAGE_EXTS.has(extname(f).toLowerCase()));
   const audioFile = files.find(f => f.toLowerCase().endsWith('.mp3'));
+  const aboutFile = files.find(f => f.toLowerCase().endsWith('_about.txt'));
   const levelPart = `${encodeURIComponent(level)}/`;
   const base = `/covers/${levelPart}${encodeURIComponent(author)}/${encodeURIComponent(title)}/`;
+
+  let about = null;
+  if (aboutFile) {
+    try { about = (await readFile(join(bookPath, aboutFile), 'utf8')).trim(); } catch { /* игнорируем */ }
+  }
+
   return {
     coverUrl: coverFile ? base + encodeURIComponent(coverFile) : null,
     audioUrl: audioFile ? base + encodeURIComponent(audioFile) : null,
+    about,
   };
 }
 

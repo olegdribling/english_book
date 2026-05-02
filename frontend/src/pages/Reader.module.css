@@ -111,6 +111,33 @@
   color: var(--text-secondary);
 }
 
+/* FAB кнопка полноэкранного режима — прозрачная, исчезает через 5 сек без активности */
+.readerFab {
+  position: fixed;
+  bottom: calc(var(--nav-height) + 16px);
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(128, 128, 128, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: opacity 0.5s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* В полноэкранном режиме Nav скрыт — кнопка прибита к низу экрана */
+.readerFabFullscreen {
+  bottom: 24px;
+}
+
 /* ── Постраничный режим (swipeNav = on) ── */
 
 /* Контейнер заполняет всю высоту .main и не скроллится */
