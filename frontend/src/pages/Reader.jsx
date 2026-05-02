@@ -25,37 +25,6 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
   const navigate                   = useNavigate();
   const textRef                    = useRef(null);
 
-  // Полноэкранный режим — скрывает Nav и Header
-  const [fullscreen, setFullscreen] = useState(false);
-  // FAB видна пока пользователь взаимодействует с экраном, скрывается через 5 сек
-  const [fabVisible, setFabVisible] = useState(true);
-  const fabTimerRef                  = useRef(null);
-
-  // Сбрасываем таймер скрытия FAB — вызывается при любом касании экрана
-  const resetFabTimer = useCallback(() => {
-    setFabVisible(true);
-    clearTimeout(fabTimerRef.current);
-    fabTimerRef.current = setTimeout(() => setFabVisible(false), 5000);
-  }, []);
-
-  // Запускаем таймер при монтировании, подписываемся на касание и движение мыши
-  useEffect(() => {
-    resetFabTimer();
-    document.addEventListener('pointerdown', resetFabTimer);
-    document.addEventListener('mousemove', resetFabTimer);
-    return () => {
-      clearTimeout(fabTimerRef.current);
-      document.removeEventListener('pointerdown', resetFabTimer);
-      document.removeEventListener('mousemove', resetFabTimer);
-    };
-  }, [resetFabTimer]);
-
-  // Переключаем класс на body для скрытия Nav/Header через глобальный CSS
-  useEffect(() => {
-    document.body.classList.toggle('reading-fullscreen', fullscreen);
-    return () => document.body.classList.remove('reading-fullscreen');
-  }, [fullscreen]);
-
   const handleWord = useCallback((word, rect, rects) => {
     setPopup({ word, rect, rects });
   }, []);
@@ -157,18 +126,6 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
     onSwipeRight: handleSwipeRight,
   });
 
-  // FAB кнопка разворачивания/сворачивания на весь экран
-  const fab = (
-    <button
-      className={`${styles.readerFab} ${fullscreen ? styles.readerFabFullscreen : ''}`}
-      style={{ opacity: fabVisible ? 1 : 0, pointerEvents: fabVisible ? 'auto' : 'none' }}
-      onClick={() => setFullscreen(f => !f)}
-      aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-    >
-      {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-    </button>
-  );
-
   // ── Режим постраничного перелистывания ──
   if (swipeNav) {
     return (
@@ -193,8 +150,6 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
           )}
         </div>
 
-        {fab}
-
         {popup && (
           <TranslationPopup
             word={popup.word}
@@ -207,7 +162,7 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
     );
   }
 
-  // ── Режим прокрутки (оригинальный) ──
+  // ── Режим прокрутки ──
   return (
     <>
       <div className={styles.page} style={hasAudio ? { paddingBottom: 80 } : undefined}>
@@ -229,8 +184,6 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
           )}
         </div>
       </div>
-
-      {fab}
 
       {popup && (
         <TranslationPopup
@@ -256,6 +209,59 @@ export default function Reader() {
   const audioRef                 = useRef(null);
   // Ключ для сохранения позиции воспроизведения в localStorage
   const audioKey                 = `audioTime:${author}/${title}`;
+
+  // Полноэкранный режим — скрывает Nav и Header
+  const [fullscreen, setFullscreen] = useState(false);
+  // FAB видна пока пользователь взаимодействует с экраном, скрывается через 5 сек
+  const [fabVisible, setFabVisible] = useState(true);
+  const fabTimerRef                  = useRef(null);
+  // Элемент в центре экрана — для восстановления позиции после переключения fullscreen
+  const centerElRef                  = useRef(null);
+
+  // Сбрасываем таймер скрытия FAB — вызывается при любом касании и движении мыши
+  const resetFabTimer = useCallback(() => {
+    setFabVisible(true);
+    clearTimeout(fabTimerRef.current);
+    fabTimerRef.current = setTimeout(() => setFabVisible(false), 5000);
+  }, []);
+
+  // Запускаем таймер при монтировании, подписываемся на касание и движение мыши
+  useEffect(() => {
+    resetFabTimer();
+    document.addEventListener('pointerdown', resetFabTimer);
+    document.addEventListener('mousemove', resetFabTimer);
+    return () => {
+      clearTimeout(fabTimerRef.current);
+      document.removeEventListener('pointerdown', resetFabTimer);
+      document.removeEventListener('mousemove', resetFabTimer);
+    };
+  }, [resetFabTimer]);
+
+  // Переключаем класс на body для скрытия Nav/Header через глобальный CSS
+  useEffect(() => {
+    document.body.classList.toggle('reading-fullscreen', fullscreen);
+    return () => document.body.classList.remove('reading-fullscreen');
+  }, [fullscreen]);
+
+  // После переключения fullscreen восстанавливаем центр экрана через rAF —
+  // ждём пока браузер пересчитает layout с новыми размерами
+  useEffect(() => {
+    const el = centerElRef.current;
+    if (!el) return;
+    centerElRef.current = null;
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ block: 'center', behavior: 'instant' });
+    });
+  }, [fullscreen]);
+
+  // Переключение fullscreen: сначала запоминаем центр экрана, потом меняем состояние
+  const toggleFullscreen = useCallback(() => {
+    centerElRef.current = document.elementFromPoint(
+      window.innerWidth / 2,
+      window.innerHeight / 2
+    );
+    setFullscreen(f => !f);
+  }, []);
 
   useEffect(() => {
     fetch(`/api/books/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/${index}?level=${encodeURIComponent(level)}`)
@@ -284,12 +290,26 @@ export default function Reader() {
   if (error)    return <div className={styles.center}><p className={styles.hint}>{error}</p></div>;
   if (!chapter) return <div className={styles.center}><p className={styles.hint}>Loading...</p></div>;
 
+  // В fullscreen плеер скрыт, поэтому его высота не учитывается
+  const audioBarH  = audioUrl && !fullscreen ? 72 : 0;
+  const fabBottom  = fullscreen
+    ? '24px'
+    : `calc(var(--nav-height) + ${audioBarH + 16}px)`;
+
   return (
     <div className={styles.readerLayout}>
       <div className={styles.readerScroll}>
-        <ChapterContent chapter={chapter} author={author} title={title} idx={parseInt(index, 10)} level={level} hasAudio={false} />
+        <ChapterContent
+          chapter={chapter}
+          author={author}
+          title={title}
+          idx={parseInt(index, 10)}
+          level={level}
+          hasAudio={!!audioUrl}
+        />
       </div>
-      {audioUrl && (
+
+      {audioUrl && !fullscreen && (
         <div className={styles.audioBar}>
           <audio
             ref={audioRef}
@@ -302,6 +322,20 @@ export default function Reader() {
           />
         </div>
       )}
+
+      {/* FAB кнопка полноэкранного режима */}
+      <button
+        className={styles.readerFab}
+        style={{
+          bottom:       fabBottom,
+          opacity:      fabVisible ? 1 : 0,
+          pointerEvents: fabVisible ? 'auto' : 'none',
+        }}
+        onClick={toggleFullscreen}
+        aria-label={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+      >
+        {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+      </button>
     </div>
   );
 }
