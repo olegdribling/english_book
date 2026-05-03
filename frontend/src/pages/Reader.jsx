@@ -309,8 +309,8 @@ export default function Reader() {
         />
       </div>
 
-      {audioUrl && !fullscreen && (
-        <div className={styles.audioBar}>
+      {audioUrl && (
+        <div className={styles.audioBar} style={fullscreen ? { display: 'none' } : undefined}>
           <audio
             ref={audioRef}
             controls
