@@ -5,6 +5,7 @@ import { useTextColor } from './hooks/useTextColor';
 import Nav from './components/Nav';
 import Header from './components/Header';
 import Library from './pages/Library';
+import InProgress from './pages/InProgress';
 import BookToc from './pages/BookToc';
 import Reader from './pages/Reader';
 import Dictionary from './pages/Dictionary';
@@ -41,6 +42,7 @@ export default function App() {
       <main className="main">
         <Routes>
           <Route path="/"                                    element={<Library />} />
+          <Route path="/in-progress"                         element={<InProgress />} />
           <Route path="/book/:author/:title"                 element={<BookToc />} />
           <Route path="/book/:author/:title/chapter/:index"  element={<Reader />} />
           <Route path="/englishpod"                          element={<EnglishPod />} />

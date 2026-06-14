@@ -40,6 +40,9 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
     // Индекс главы — отдельно для каждого уровня
     const progressKey = `lastRead:${author}/${originalTitle}:${level}`;
     localStorage.setItem(progressKey, String(idx));
+    // Timestamp последнего открытия — для сортировки в "In Progress"
+    const timestampKey = `lastRead_ts:${author}/${originalTitle}:${level}`;
+    localStorage.setItem(timestampKey, String(Date.now()));
     // Уровень книги — чтобы BookSheet при следующем открытии знал последний уровень
     saveLevel(author, originalTitle, level);
   }, [author, title, idx, level]);

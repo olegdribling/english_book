@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, BookOpen } from 'lucide-react';
 import styles from './Header.module.css';
 
 // Заголовки для вкладок нижней навигации
@@ -48,6 +48,9 @@ export default function Header({ activeTab }) {
   const back  = getBackInfo(pathname, level);
   const title = TAB_TITLES[activeTab] ?? 'Library';
 
+  // Показываем кнопку "In Progress" если не на странице /in-progress
+  const showInProgressBtn = !pathname.startsWith('/in-progress');
+
   return (
     <header className={styles.header}>
       {back ? (
@@ -59,7 +62,15 @@ export default function Header({ activeTab }) {
           <span className={styles.bookTitle}>{back.bookTitle}</span>
         </>
       ) : (
-        <span className={styles.title}>{title}</span>
+        <>
+          <span className={styles.title}>{title}</span>
+          {showInProgressBtn && (
+            <Link to="/in-progress" className={styles.inProgress}>
+              <BookOpen size={18} strokeWidth={2} />
+              <span>In Progress</span>
+            </Link>
+          )}
+        </>
       )}
     </header>
   );

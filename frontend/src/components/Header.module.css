@@ -51,6 +51,24 @@
   max-width: 55%;
 }
 
+/* Кнопка "In Progress" справа в хедере */
+.inProgress {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  text-decoration: none;
+  opacity: 0.85;
+  font-size: 15px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.inProgress:active {
+  opacity: 1;
+}
+
 @media (min-width: 768px) {
   .header { padding: 0 24px; }
 }
