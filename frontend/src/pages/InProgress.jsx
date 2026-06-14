@@ -1,15 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BookCard from '../components/BookCard';
-import BookSheet from '../components/BookSheet';
 import { useActiveBooks } from '../hooks/useActiveBooks';
+import { saveLevel } from '../hooks/useBookLevel';
 import styles from './InProgress.module.css';
+
+// Регулярка для удаления суффикса уровня из названия книги
+const LEVEL_SUFFIX_RE = /_([AB][12]|C1)$/;
 
 // Ключ для сохранения позиции скролла между переходами
 const SCROLL_KEY = 'inProgressScrollTop';
 
 export default function InProgress() {
   const { activeBooks, loading, error } = useActiveBooks();
-  const [selectedBook, setSelectedBook] = useState(null);
+  const navigate = useNavigate();
+
+  // Открываем книгу сразу на последней читаемой странице
+  const handleOpen = (book) => {
+    const originalTitle = book.title.replace(LEVEL_SUFFIX_RE, '');
+    const level = book.level || 'C1';
+    const progressKey = `lastRead:${book.author}/${originalTitle}:${level}`;
+    const savedChapter = localStorage.getItem(progressKey) ?? '0';
+    saveLevel(book.author, originalTitle, level);
+    navigate(`/book/${encodeURIComponent(book.author)}/${encodeURIComponent(originalTitle)}/chapter/${savedChapter}?level=${encodeURIComponent(level)}`);
+  };
 
   // Восстанавливаем позицию скролла и сохраняем её при каждом скролле
   useEffect(() => {
@@ -65,22 +79,25 @@ export default function InProgress() {
       <div className={styles.page}>
         <div className={styles.grid}>
           {activeBooks.map(book => (
-            <BookCard
-              key={`${book.author}/${book.title}/${book.level}`}
-              {...book}
-              onSelect={() => setSelectedBook(book)}
-            />
+            <div key={`${book.author}/${book.title}/${book.level}`} className={styles.bookWrap}>
+              <BookCard
+                {...book}
+                onSelect={() => handleOpen(book)}
+              />
+              {/* Полоска прогресса прочтения — показываем только если есть реальный прогресс */}
+              {book.progress > 0 && (
+                <div className={styles.progressBar}>
+                  <div
+                    className={styles.progressFill}
+                    style={{ width: `${Math.min(Math.round(book.progress * 100), 100)}%` }}
+                  />
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Bottom sheet с деталями выбранной книги */}
-      {selectedBook && (
-        <BookSheet
-          book={selectedBook}
-          onClose={() => setSelectedBook(null)}
-        />
-      )}
     </>
   );
 }

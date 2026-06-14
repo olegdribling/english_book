@@ -36,7 +36,13 @@ export function useActiveBooks() {
           const timestampKey = `lastRead_ts:${author}/${title}:${level}`;
           const timestamp = parseInt(localStorage.getItem(timestampKey) || '0', 10);
 
-          return { author, title, level, timestamp };
+          // Прогресс по страницам в режиме перелистывания
+          const flipKey    = `flip:/book/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/0`;
+          const pageIndex  = parseInt(localStorage.getItem(flipKey) || '0', 10);
+          const totalPages = parseInt(localStorage.getItem(flipKey + ':total') || '0', 10);
+          const progress   = totalPages > 1 ? pageIndex / totalPages : null;
+
+          return { author, title, level, timestamp, progress };
         });
 
         // 3. Получить все книги из API
@@ -49,7 +55,7 @@ export function useActiveBooks() {
 
         // 5. Найти matching книги и собрать полные данные
         const active = entries
-          .map(({ author, title, level, timestamp }) => {
+          .map(({ author, title, level, timestamp, progress }) => {
             // Найти книгу где автор совпадает и название совпадает
             // (с учётом что в API может быть суффикс уровня)
             const bookRecord = allBooks.find(b =>
@@ -59,7 +65,7 @@ export function useActiveBooks() {
 
             if (!bookRecord) return null;
 
-            return { ...bookRecord, level, timestamp };
+            return { ...bookRecord, level, timestamp, progress };
           })
           .filter(Boolean);
 

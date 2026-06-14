@@ -1,5 +1,4 @@
 import { useFontSize, FONT_SIZES } from '../hooks/useFontSize';
-import { useSwipeNavSetting } from '../hooks/useSwipeNavSetting';
 import { usePageNumbers } from '../hooks/usePageNumbers';
 import { useBgColor, BG_COLORS } from '../hooks/useBgColor';
 import { useTextColor, TEXT_COLORS } from '../hooks/useTextColor';
@@ -8,7 +7,6 @@ import styles from './Settings.module.css';
 // Страница настроек приложения
 export default function Settings() {
   const [fontSize, setFontSize]               = useFontSize();
-  const [swipeNav, setSwipeNav]               = useSwipeNavSetting();
   const [showPageNumbers, setShowPageNumbers] = usePageNumbers();
   const [bgColor, setBgColor]                 = useBgColor();
   const [textColor, setTextColor]             = useTextColor();
@@ -66,21 +64,9 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Секция: навигация свайпом между главами и нумерация страниц */}
+      {/* Секция: нумерация страниц */}
       <div className={styles.section}>
         <p className={styles.sectionTitle}>Reading</p>
-        <div className={styles.toggleRow}>
-          <div>
-            <p className={styles.toggleLabel}>Swipe to navigate</p>
-            <p className={styles.toggleDesc}>Switch chapters by swiping left or right</p>
-          </div>
-          <button
-            className={`${styles.toggle} ${swipeNav ? styles.toggleOn : ''}`}
-            onClick={() => setSwipeNav(!swipeNav)}
-            role="switch"
-            aria-checked={swipeNav}
-          />
-        </div>
         <div className={styles.toggleRow}>
           <div>
             <p className={styles.toggleLabel}>Show page numbers</p>

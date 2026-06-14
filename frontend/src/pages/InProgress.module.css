@@ -34,6 +34,29 @@
   }
 }
 
+/* Обёртка карточки — нужна чтобы полоска прогресса была привязана к ширине карточки */
+.bookWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Трек полоски прогресса */
+.progressBar {
+  margin-top: 8px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* Заполненная часть полоски */
+.progressFill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent, #4f8ef7);
+  transition: width 0.3s ease;
+}
+
 /* Empty state */
 .center {
   display: flex;

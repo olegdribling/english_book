@@ -23,16 +23,18 @@ export default function Nav({ active }) {
   const isBookPage       = pathname.startsWith('/book/');
   const isEpLessonPage   = pathname.startsWith('/englishpod/');
 
-  // Сохраняем место когда находимся в соответствующем разделе
-  if (isLibraryPath) {
+  // Сохраняем место когда находимся в соответствующем разделе (кроме in-progress)
+  if (isLibraryPath && pathname !== '/in-progress') {
     localStorage.setItem(LAST_LIBRARY_KEY, pathname + search);
   }
   if (pathname.startsWith('/englishpod')) {
     localStorage.setItem(LAST_ENGLISHPOD_KEY, pathname + search);
   }
 
-  // Library: если читаем книгу — на главную, иначе — на последнее место
-  const libraryTo = isBookPage
+  const isInProgressPage = pathname === '/in-progress';
+
+  // Library: если читаем книгу или на in-progress — на главную, иначе — на последнее место
+  const libraryTo = (isBookPage || isInProgressPage)
     ? '/'
     : (localStorage.getItem(LAST_LIBRARY_KEY) || '/');
 

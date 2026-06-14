@@ -20,7 +20,7 @@ function getBackInfo(pathname, level) {
   if (chapterMatch) {
     const bookTitle = decodeURIComponent(chapterMatch[1]);
     const tocPath   = pathname.replace(/\/chapter\/\d+$/, '') + lvlQ;
-    return { label: 'Contents', to: tocPath, bookTitle };
+    return { label: 'Back', to: '/in-progress', bookTitle };
   }
 
   const tocMatch = pathname.match(/^\/book\/[^/]+\/([^/]+)$/);
@@ -46,10 +46,13 @@ export default function Header({ activeTab }) {
   const level = new URLSearchParams(search).get('level');
 
   const back  = getBackInfo(pathname, level);
-  const title = TAB_TITLES[activeTab] ?? 'Library';
+
+  // На странице /in-progress показываем заголовок "In Progress", иначе — по вкладке
+  const isInProgress = pathname.startsWith('/in-progress');
+  const title = isInProgress ? 'In Progress' : (TAB_TITLES[activeTab] ?? 'Library');
 
   // Показываем кнопку "In Progress" если не на странице /in-progress
-  const showInProgressBtn = !pathname.startsWith('/in-progress');
+  const showInProgressBtn = !isInProgress;
 
   return (
     <header className={styles.header}>

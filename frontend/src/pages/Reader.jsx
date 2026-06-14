@@ -30,8 +30,7 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
   }, []);
 
   // Ключ для сохранения позиции скролла — уникальный для каждой главы
-  const scrollKey = `scroll:/book/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/${idx}`;
-  // Ключ для сохранения номера страницы в постраничном режиме
+// Ключ для сохранения номера страницы в постраничном режиме
   const flipKey   = `flip:/book/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter/${idx}`;
 
   // Сохраняем прогресс чтения и текущий уровень книги
@@ -47,29 +46,6 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
     saveLevel(author, originalTitle, level);
   }, [author, title, idx, level]);
 
-  // Восстанавливаем позицию скролла (только в режиме прокрутки)
-  useEffect(() => {
-    if (swipeNav) return;
-    const main = document.querySelector('.main');
-    if (!main) return;
-
-    const saved = localStorage.getItem(scrollKey);
-    if (saved) main.scrollTop = parseInt(saved, 10);
-
-    let timer;
-    const onScroll = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        localStorage.setItem(scrollKey, String(main.scrollTop));
-      }, 100);
-    };
-
-    main.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      main.removeEventListener('scroll', onScroll);
-      clearTimeout(timer);
-    };
-  }, [scrollKey, swipeNav]);
 
   const base    = `/book/${encodeURIComponent(author)}/${encodeURIComponent(title)}/chapter`;
   const lvlQ    = `?level=${encodeURIComponent(level)}`;
@@ -81,11 +57,12 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
   const { containerRef, pages, pageIndex, goNext, goPrev, isFirst, isLast, total } =
     usePaginate({ text: swipeNav ? chapter.text : '', fontSize, initialPageIndex: savedPageIndex });
 
-  // Сохраняем текущую страницу при каждом перелистывании
+  // Сохраняем текущую страницу и общее количество страниц при каждом перелистывании
   useEffect(() => {
-    if (!swipeNav) return;
+    if (!swipeNav || !total) return;
     localStorage.setItem(flipKey, String(pageIndex));
-  }, [flipKey, pageIndex, swipeNav]);
+    localStorage.setItem(flipKey + ':total', String(total));
+  }, [flipKey, pageIndex, total, swipeNav]);
 
   // Взаимодействие со словами: textRef — режим прокрутки, containerRef — режим перелистывания
   // Хук безопасно игнорирует null-рефы, поэтому вызываем оба
@@ -134,8 +111,7 @@ function ChapterContent({ chapter, author, title, idx, level, hasAudio }) {
     return (
       <>
         <div className={styles.pagedView}>
-          {showPageNumbers && <p className={styles.pagedLabel}>{chapter.label} · {chapter.title}</p>}
-          <div className={styles.pagedText} ref={containerRef} onPointerUp={handlePageClick}>
+<div className={styles.pagedText} ref={containerRef} onPointerUp={handlePageClick}>
             {pages
               ? <BookPageFlip
                   pages={pages}
