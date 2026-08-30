@@ -96,7 +96,9 @@ english_book/
         │   ├── BookPageFlip.jsx          — постраничный рендер текста с 3D-анимацией перелистывания книги
         │   ├── BookPageFlip.module.css   — стили и CSS-анимации перелистывания (rotateY, perspective)
         │   ├── AddWordModal.jsx          — модальное окно ручного добавления слова в словарь (EN↔RU, автоперевод)
-        │   └── AddWordModal.module.css   — стили модального окна добавления слова
+        │   ├── AddWordModal.module.css   — стили модального окна добавления слова
+        │   ├── WhatsNewModal.jsx         — одноразовый попап-анонс новой функции (бейдж New, кнопка Got it)
+        │   └── WhatsNewModal.module.css  — стили попапа-анонса
         │
         ├── hooks/                        — кастомные React-хуки
         │   ├── useWordInteraction.js     — перехватывает выделение текста (двойной тап / долгий тап / мышь), вызывает onWord()
@@ -107,6 +109,7 @@ english_book/
         │   ├── usePageNumbers.js         — хранит настройку "показывать нумерацию страниц" в localStorage
         │   ├── useKeepAwakeSetting.js    — хранит настройку "не выключать экран во время чтения" в localStorage
         │   ├── useKeepAwake.js           — держит экран включённым через Screen Wake Lock API (нужен HTTPS)
+        │   ├── useSeenTip.js             — одноразовые анонсы: показан ли пользователю анонс с данным id
         │   ├── useBookLevel.js           — уровни и их цвета (LEVEL_COLORS), хранит выбранный уровень per-книга в localStorage
         │   ├── useBgColor.js             — хранит цвет фона читалки, применяет CSS-переменную --bg
         │   ├── useTextColor.js           — хранит цвет текста читалки, применяет CSS-переменную --text-primary
