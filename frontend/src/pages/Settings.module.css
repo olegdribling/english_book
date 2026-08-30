@@ -107,6 +107,12 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+/* Тогл недоступен — API не поддерживается браузером */
+.toggle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Включённый тогл */
 .toggleOn {
   background: var(--accent, #3b82f6);

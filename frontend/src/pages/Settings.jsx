@@ -1,5 +1,7 @@
 import { useFontSize, FONT_SIZES } from '../hooks/useFontSize';
 import { usePageNumbers } from '../hooks/usePageNumbers';
+import { useKeepAwakeSetting } from '../hooks/useKeepAwakeSetting';
+import { wakeLockSupported } from '../hooks/useKeepAwake';
 import { useBgColor, BG_COLORS } from '../hooks/useBgColor';
 import { useTextColor, TEXT_COLORS } from '../hooks/useTextColor';
 import styles from './Settings.module.css';
@@ -8,6 +10,7 @@ import styles from './Settings.module.css';
 export default function Settings() {
   const [fontSize, setFontSize]               = useFontSize();
   const [showPageNumbers, setShowPageNumbers] = usePageNumbers();
+  const [keepAwake, setKeepAwake]             = useKeepAwakeSetting();
   const [bgColor, setBgColor]                 = useBgColor();
   const [textColor, setTextColor]             = useTextColor();
 
@@ -77,6 +80,24 @@ export default function Settings() {
             onClick={() => setShowPageNumbers(!showPageNumbers)}
             role="switch"
             aria-checked={showPageNumbers}
+          />
+        </div>
+        {/* Wake Lock доступен только по HTTPS — если API нет, тумблер отключён */}
+        <div className={styles.toggleRow}>
+          <div>
+            <p className={styles.toggleLabel}>Keep screen on</p>
+            <p className={styles.toggleDesc}>
+              {wakeLockSupported
+                ? 'Prevent the screen from dimming while a book or lesson is open'
+                : 'Not supported by this browser'}
+            </p>
+          </div>
+          <button
+            className={`${styles.toggle} ${keepAwake ? styles.toggleOn : ''}`}
+            onClick={() => setKeepAwake(!keepAwake)}
+            role="switch"
+            aria-checked={keepAwake}
+            disabled={!wakeLockSupported}
           />
         </div>
       </div>

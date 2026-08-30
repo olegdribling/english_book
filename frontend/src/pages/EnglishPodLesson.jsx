@@ -2,6 +2,8 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useWordInteraction } from '../hooks/useWordInteraction';
 import { useFontSize } from '../hooks/useFontSize';
+import { useKeepAwakeSetting } from '../hooks/useKeepAwakeSetting';
+import { useKeepAwake } from '../hooks/useKeepAwake';
 import TranslationPopup from '../components/TranslationPopup';
 import styles from './EnglishPodLesson.module.css';
 
@@ -63,6 +65,10 @@ export default function EnglishPodLesson() {
   const [htmlContent, setHtmlContent] = useState(null);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(null);
+
+  // Не даём экрану гаснуть пока открыт урок (если включено в настройках)
+  const [keepAwake] = useKeepAwakeSetting();
+  useKeepAwake(keepAwake);
 
   // Отмечаем урок как посещённый при открытии
   useEffect(() => { markVisited(level, folder); }, [level, folder]);

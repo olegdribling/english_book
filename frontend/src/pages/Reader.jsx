@@ -8,6 +8,8 @@ import { useSwipeNavSetting } from '../hooks/useSwipeNavSetting';
 import { usePageNumbers } from '../hooks/usePageNumbers';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import { usePaginate } from '../hooks/usePaginate';
+import { useKeepAwakeSetting } from '../hooks/useKeepAwakeSetting';
+import { useKeepAwake } from '../hooks/useKeepAwake';
 import BookPageFlip from '../components/BookPageFlip';
 import TranslationPopup from '../components/TranslationPopup';
 import styles from './Reader.module.css';
@@ -188,6 +190,10 @@ export default function Reader() {
   const audioRef                 = useRef(null);
   // Ключ для сохранения позиции воспроизведения в localStorage
   const audioKey                 = `audioTime:${author}/${title}`;
+
+  // Не даём экрану гаснуть пока открыта книга (если включено в настройках)
+  const [keepAwake]              = useKeepAwakeSetting();
+  useKeepAwake(keepAwake);
 
   // Полноэкранный режим — скрывает Nav и Header
   const [fullscreen, setFullscreen] = useState(false);
